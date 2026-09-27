@@ -1,3 +1,4 @@
+import {isHostedRequest} from './background.mjs';
 import {fetchCached,requestCache} from './providers';
 import {parseHistoricalCsv,modelTeam} from './arata-model.mjs';
 const codes:Record<string,string>={epl:'E0',bundesliga:'D1','la-liga':'SP1','serie-a':'I1','ligue-1':'F1'};
@@ -5,7 +6,7 @@ const newsCodes:Record<string,string>={epl:'eng.1',bundesliga:'ger.1','la-liga':
 export async function researchHistory(leagueId:string){const memo=requestCache(),year=new Date().getUTCFullYear()-(new Date().getUTCMonth()<6?1:0),code=codes[leagueId];if(!code&&leagueId!=='mls')return {history:[],stale:true,status:'unavailable',message:'No verified historical feed for this league.'};const urls=leagueId==='mls'?['https://www.football-data.co.uk/new/USA.csv']:[year,year-1,year-2].map(y=>`https://www.football-data.co.uk/mmz4281/${String(y).slice(-2)}${String(y+1).slice(-2)}/${code}.csv`);
  const history:any[]=[],errors:string[]=[],captured:string[]= [];let stale=false;
  // Respect the free publisher: bounded, sequential downloads with persistent cache.
- for(const [i,url]of urls.entries()){try{const r:any=await fetchCached(url,i===0?21600000:604800000,memo,{text:true,headers:{Accept:'text/csv'},maxStaleMs:7*86400000,retries:1});const parsed=parseHistoricalCsv(r.data,leagueId,url);if(!parsed.length)throw new Error('No valid settled historical rows.');history.push(...parsed);stale ||= r.stale;captured.push(r.captured);}catch(e){errors.push((e as Error).message);}}
+ await Promise.all(urls.map(async(url,i)=>{try{const r:any=await fetchCached(url,i===0?21600000:604800000,memo,{text:true,headers:{Accept:'text/csv'},maxStaleMs:7*86400000,retries:1,timeoutMs:isHostedRequest()?4000:12000});const parsed=parseHistoricalCsv(r.data,leagueId,url);if(!parsed.length)throw new Error('No valid settled historical rows.');history.push(...parsed);stale ||= r.stale;captured.push(r.captured);}catch(e){errors.push((e as Error).message);}}));
  return {history,stale,captured:captured.sort()[0],status:history.length?(stale?'cached':errors.length?'partial':'connected'):'unavailable',message:errors.join('; ')||null};
 }
 export async function availabilityNews(leagueId:string){if(!newsCodes[leagueId])return {articles:[],status:'unknown',captured:null};try{const r:any=await fetchCached(`https://site.api.espn.com/apis/site/v2/sports/soccer/${newsCodes[leagueId]}/news?limit=50`,1800000,requestCache(),{maxStaleMs:3600000,retries:1});return {articles:r.data.articles||[],status:r.stale?'stale':'headlines-only',captured:r.captured};}catch{return {articles:[],status:'unknown',captured:null};}}

@@ -12,7 +12,7 @@ let query,transaction,close;
 if(process.env.DATABASE_URL){
  const {default:pg}=await import('pg');const pool=new pg.Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.PGSSL==='require'?{rejectUnauthorized:true}:undefined});
  await pool.query(readFileSync(path.join(root,'backend/postgres.sql'),'utf8'));
- const convert=sql=>{let n=0;return sql.replace(/json_extract\(([^,()]+),'\$\.([^']+)'\)/g,(_,column,key)=>`(${column}::jsonb ->> '${key}')`).replace(/date\(created,'\+3 hours'\)/g,"TO_CHAR(created::timestamptz AT TIME ZONE 'Africa/Kampala','YYYY-MM-DD')").replace(/\?/g,()=>'$'+(++n));};
+ const convert=sql=>{let n=0;return sql.replace("json_group_array(json(q.value))","COALESCE(jsonb_agg(q.value), '[]'::jsonb)::text").replace("json_each(f.payload,'$.quotes') q","jsonb_array_elements(COALESCE(f.payload::jsonb->'quotes','[]'::jsonb)) q(value)").replace(/json_remove\(([^,()]+),'\$\.([^']+)'\)/g,(_,column,key)=>`(${column}::jsonb - '${key}')::text`).replace(/json_extract\(([^,()]+),'\$\.([^']+)'\)/g,(_,column,key)=>`(${column}::jsonb ->> '${key}')`).replace(/date\(created,'\+3 hours'\)/g,"TO_CHAR(created::timestamptz AT TIME ZONE 'Africa/Kampala','YYYY-MM-DD')").replace(/\?/g,()=>'$'+(++n));};
  query=async(sql,params=[])=>{const r=await pool.query(convert(sql),params);return r.rows;};
  transaction=async statements=>{const c=await pool.connect();try{await c.query('BEGIN');const results=[];for(const s of statements){const r=await c.query(convert(s.sql),s.params);results.push({success:true,results:r.rows});}await c.query('COMMIT');return results;}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}};
  close=()=>pool.end();

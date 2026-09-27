@@ -1,4 +1,6 @@
 "use client";
+import {readApiJson} from '@/lib/api-client.mjs';
+
 
 import {useState} from 'react';
 
@@ -14,9 +16,9 @@ export default function FixtureCard({fixture:f,onSaved}:{fixture:Fixture;onSaved
 
  const [editing,setEditing]=useState(false),[prices,setPrices]=useState<any>({...f.odds}),[bookmaker,setBookmaker]=useState('My bookmaker'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[context,setContext]=useState<any>(null),[contextBusy,setContextBusy]=useState(false);
 
- async function history(){setContextBusy(true);setError('');try{const r=await fetch('/api/fixtures/h2h?id='+encodeURIComponent(f.id));const d:any=await r.json();if(!r.ok)throw new Error(d.error);setContext(d);}catch(e){setError((e as Error).message);}finally{setContextBusy(false);}}
+ async function history(){setContextBusy(true);setError('');try{const r=await fetch('/api/fixtures/h2h?id='+encodeURIComponent(f.id));const d:any=await readApiJson(r);if(!r.ok)throw new Error(d.error);setContext(d);}catch(e){setError((e as Error).message);}finally{setContextBusy(false);}}
 
- async function save(){setBusy(true);setError('');try{const r=await fetch('/api/odds',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fixtureId:f.id,odds:prices,bookmaker})});const result:any=await r.json();if(!r.ok)throw new Error(result.error);setEditing(false);onSaved();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ async function save(){setBusy(true);setError('');try{const r=await fetch('/api/odds',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fixtureId:f.id,odds:prices,bookmaker})});const result:any=await readApiJson(r);if(!r.ok)throw new Error(result.error);setEditing(false);onSaved();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
 
  const sum=Object.values(f.probabilities).reduce((s,n)=>s+(n||0),0);
 

@@ -126,3 +126,7 @@ New Arata predictions include `learningInput` with schema, frozen goal features,
 ## Hosted runtime
 
 The hosted app exposes the same API with D1 storage. `/api/live/stream` returns 204 to select the two-second HTTP fallback; `/api/live` returns `connection: "polling"`. Local Node retains SSE. Saved tickets are presented in the separate Tickets module; GET `/api/tickets` retains its existing complete records and per-leg progress response.
+
+### Hosted refresh progress
+
+On the hosted runtime, `POST /api/refresh?range=upcoming` acknowledges a background refresh with HTTP 202 (`accepted`, `inProgress`). Read `GET /api/sync/status` until `inProgress` is false, then read `/api/state`. Ingestion, research leagues, and forecast writes rotate through bounded batches. Local Node refresh remains synchronous. The original fixture periods, Kampala times and immutable forecast/outcome validation rules remain in force.

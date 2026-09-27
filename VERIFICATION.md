@@ -110,3 +110,10 @@ The portable database adapter now strips statement methods before sending transa
 - Hosted Worker local runtime: HTML, manifest, service worker, API health, learning, history and tickets returned 200. Its isolated public-source flow compiled 476 real fixtures, 15,866 quotes and 779 logged forecasts; 93 fixtures had an independent Arata forecast. Some public provider requests failed, reported as partial coverage. These are verification-time observations, not fixed catalog sizes.
 - Private local history and the owner’s two saved tickets remain in the original SQLite database. No test tickets were inserted there. The new pending ticket was created by the owner during the workflow.
 - Source ZIP excludes dependencies, generated output, cache databases, credentials and personal ticket history, and includes the lockfile, all app modules and setup/deployment documentation.
+
+## Desktop header and live loading repair
+
+- Desktop header stays fixed at top 0 after scrolling 8,990 pixels at a 1280-pixel viewport; the sidebar offset follows the desktop breakpoint. Mobile header remains fixed.
+- Regression coverage includes request-owned locks, one-read league context, byte-budget caches, HTML gateway/session errors, source response size limits, Kampala date selection, batch rotation, all-leg tracking over 250 IDs, and preservation of verified result timestamps.
+- Hosted preview exercised concurrent live requests during a background fixture refresh, then loaded fresh prices and the resulting board. Existing owner data was not used for this isolated runtime test.
+- Native production logs are used to diagnose cloud-only errors; local timing is not a promise about source latency or a user's connection.
