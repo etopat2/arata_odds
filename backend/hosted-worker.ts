@@ -12,7 +12,7 @@ export default {
     return new Response(null,{status:204,headers:{'Cache-Control':'no-store'}});
    }
    if(url.pathname.startsWith('/api/')){try{
-    if(url.pathname==='/api/sync/status')return jsonResponse(await refreshStatus(),{headers:{'Cache-Control':'no-store'}});
+    if(url.pathname==='/api/sync/status')return jsonResponse(await refreshStatus(url.searchParams.get('range')||''),{headers:{'Cache-Control':'no-store'}});
     if(request.method==='POST'&&['/api/refresh','/api/web/ingest','/api/predictions/generate'].includes(url.pathname)){
      const origin=request.headers.get('origin');if(origin&&origin!==url.origin)return jsonResponse({error:'Request origin is not allowed.'},{status:403});
      return jsonResponse(await startHostedRefresh(url.searchParams.get('range')||'upcoming'),{status:202,headers:{'Cache-Control':'no-store'}});

@@ -1,9 +1,12 @@
 import {build} from 'esbuild';
 import {build as buildFrontend} from 'vite';
-import {mkdir,writeFile,readFile} from 'node:fs/promises';
+import {mkdir,writeFile,readFile,rm} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
+import {resolve,relative,isAbsolute} from 'node:path';
 await buildFrontend({configFile:'vite.local.config.mjs',build:{outDir:fileURLToPath(new URL('../dist/client',import.meta.url)),emptyOutDir:true}});
-await mkdir('dist/server',{recursive:true});
+const root=fileURLToPath(new URL('../',import.meta.url)),server=resolve(root,'dist/server'),inside=relative(root,server);
+if(!inside||inside.startsWith('..')||isAbsolute(inside)||resolve(process.cwd())!==resolve(root))throw new Error('Build cleanup must stay inside the app workspace.');
+await rm(server,{recursive:true,force:true});await mkdir(server,{recursive:true});
 await build({entryPoints:['backend/hosted-worker.ts'],outfile:'dist/server/index.js',bundle:true,format:'esm',platform:'neutral',target:'es2022',external:['cloudflare:workers','node:*']});
 await writeFile('dist/server/wrangler.json',JSON.stringify({name:'arata-odds',main:'index.js',compatibility_date:'2026-05-15',compatibility_flags:['nodejs_compat'],assets:{directory:'../client',binding:'ASSETS',not_found_handling:'single-page-application',run_worker_first:true},d1_databases:[{binding:'DB',database_name:'arata-odds',database_id:'00000000-0000-4000-8000-000000000000',migrations_dir:'../../drizzle'}]},null,2));
 await mkdir('dist/.openai',{recursive:true});

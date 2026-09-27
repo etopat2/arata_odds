@@ -117,3 +117,6 @@ The portable database adapter now strips statement methods before sending transa
 - Regression coverage includes request-owned locks, one-read league context, byte-budget caches, HTML gateway/session errors, source response size limits, Kampala date selection, batch rotation, all-leg tracking over 250 IDs, and preservation of verified result timestamps.
 - Hosted preview exercised concurrent live requests during a background fixture refresh, then loaded fresh prices and the resulting board. Existing owner data was not used for this isolated runtime test.
 - Native production logs are used to diagnose cloud-only errors; local timing is not a promise about source latency or a user's connection.
+
+- All 136 automated checks and the TypeScript check passed. A two-phase hosted-runtime refresh completed with 636 fixtures, 2,523 eligible quoted selections and 84 Arata forecasts at 2026-09-27T20:31:57Z. The three concurrent live requests returned valid JSON in 2.8 seconds locally. Collection acknowledged with 202, and both phases finished with no reported error. Counts and timing vary with public source coverage.
+
