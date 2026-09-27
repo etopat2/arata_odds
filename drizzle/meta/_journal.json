@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1790430518145,
+      "tag": "0000_illegal_morph",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790445600000,
+      "tag": "0001_ticket_quote_legs",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790532907761,
+      "tag": "0002_strong_fixer",
+      "breakpoints": true
+    }
+  ]
+}

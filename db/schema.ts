@@ -1,0 +1,13 @@
+// Intentionally empty by default.
+// Add Drizzle tables here when the site actually needs a database.
+// See examples/d1/db/schema.ts for an opt-in example.
+import { sqliteTable, text, integer, index, primaryKey } from 'drizzle-orm/sqlite-core';
+export const fixtures = sqliteTable('fixtures', { id: text('id').primaryKey(), kickoff: text('kickoff').notNull(), payload: text('payload').notNull(), updated: text('updated').notNull() }, t => [index('fixtures_kickoff_idx').on(t.kickoff)]);
+export const predictions = sqliteTable('predictions', { id: text('id').primaryKey(), fixtureId: text('fixture_id').notNull().references(() => fixtures.id), created: text('created').notNull(), outcome: text('outcome').notNull().default('pending'), payload: text('payload').notNull() }, t => [index('predictions_fixture_idx').on(t.fixtureId),index('predictions_outcome_created_idx').on(t.outcome,t.created),index('predictions_created_idx').on(t.created),index('predictions_fixture_outcome_idx').on(t.fixtureId,t.outcome)]);
+export const odds = sqliteTable('odds_snapshots', { id: text('id').primaryKey(), fixtureId: text('fixture_id').notNull().references(() => fixtures.id), captured: text('captured').notNull(), payload: text('payload').notNull() }, t => [index('odds_fixture_captured_idx').on(t.fixtureId, t.captured)]);
+export const tickets = sqliteTable('tickets', { id: text('id').primaryKey(), created: text('created').notNull(), status: text('status').notNull().default('pending'), payload: text('payload').notNull() });
+export const ticketLegs = sqliteTable('ticket_legs', { id: text('id').primaryKey(), ticketId: text('ticket_id').notNull().references(() => tickets.id), predictionId: text('prediction_id').notNull().references(() => predictions.id), payload: text('payload').notNull() }, t => [index('legs_ticket_idx').on(t.ticketId)]);
+export const cache = sqliteTable('api_cache', { key: text('key').primaryKey(), expires: integer('expires').notNull(), payload: text('payload').notNull() });
+export const ticketQuoteLegs = sqliteTable('ticket_quote_legs', { id: text('id').primaryKey(), ticketId: text('ticket_id').notNull().references(() => tickets.id), fixtureId: text('fixture_id').notNull().references(() => fixtures.id), payload: text('payload').notNull() });
+
+export const predictionHeads = sqliteTable('prediction_heads',{fixtureId:text('fixture_id').notNull(),predictor:text('predictor').notNull(),market:text('market').notNull(),selection:text('selection').notNull(),lineKey:text('line_key').notNull(),predictionId:text('prediction_id').notNull(),created:text('created').notNull()},t=>[primaryKey({columns:[t.fixtureId,t.predictor,t.market,t.selection,t.lineKey]})]);

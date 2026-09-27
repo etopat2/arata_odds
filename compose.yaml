@@ -1,0 +1,13 @@
+services:
+  database:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: arata
+      POSTGRES_USER: arata
+      POSTGRES_PASSWORD: arata-local-only
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - arata_pg:/var/lib/postgresql/data
+volumes:
+  arata_pg:

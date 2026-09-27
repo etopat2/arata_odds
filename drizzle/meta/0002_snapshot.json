@@ -1,0 +1,494 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "67fafb43-983c-42aa-8614-d41872637e9d",
+  "prevId": "3e7dfcb5-45f5-42fc-b6e1-7a14c3e64805",
+  "tables": {
+    "api_cache": {
+      "name": "api_cache",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires": {
+          "name": "expires",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payload": {
+          "name": "payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "fixtures": {
+      "name": "fixtures",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kickoff": {
+          "name": "kickoff",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payload": {
+          "name": "payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated": {
+          "name": "updated",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "fixtures_kickoff_idx": {
+          "name": "fixtures_kickoff_idx",
+          "columns": [
+            "kickoff"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "odds_snapshots": {
+      "name": "odds_snapshots",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fixture_id": {
+          "name": "fixture_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "captured": {
+          "name": "captured",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payload": {
+          "name": "payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "odds_fixture_captured_idx": {
+          "name": "odds_fixture_captured_idx",
+          "columns": [
+            "fixture_id",
+            "captured"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "odds_snapshots_fixture_id_fixtures_id_fk": {
+          "name": "odds_snapshots_fixture_id_fixtures_id_fk",
+          "tableFrom": "odds_snapshots",
+          "tableTo": "fixtures",
+          "columnsFrom": [
+            "fixture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "prediction_heads": {
+      "name": "prediction_heads",
+      "columns": {
+        "fixture_id": {
+          "name": "fixture_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "predictor": {
+          "name": "predictor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "market": {
+          "name": "market",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "selection": {
+          "name": "selection",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "line_key": {
+          "name": "line_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prediction_id": {
+          "name": "prediction_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created": {
+          "name": "created",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "prediction_heads_fixture_id_predictor_market_selection_line_key_pk": {
+          "columns": [
+            "fixture_id",
+            "predictor",
+            "market",
+            "selection",
+            "line_key"
+          ],
+          "name": "prediction_heads_fixture_id_predictor_market_selection_line_key_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "predictions": {
+      "name": "predictions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fixture_id": {
+          "name": "fixture_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created": {
+          "name": "created",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "outcome": {
+          "name": "outcome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "payload": {
+          "name": "payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "predictions_fixture_idx": {
+          "name": "predictions_fixture_idx",
+          "columns": [
+            "fixture_id"
+          ],
+          "isUnique": false
+        },
+        "predictions_outcome_created_idx": {
+          "name": "predictions_outcome_created_idx",
+          "columns": [
+            "outcome",
+            "created"
+          ],
+          "isUnique": false
+        },
+        "predictions_created_idx": {
+          "name": "predictions_created_idx",
+          "columns": [
+            "created"
+          ],
+          "isUnique": false
+        },
+        "predictions_fixture_outcome_idx": {
+          "name": "predictions_fixture_outcome_idx",
+          "columns": [
+            "fixture_id",
+            "outcome"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "predictions_fixture_id_fixtures_id_fk": {
+          "name": "predictions_fixture_id_fixtures_id_fk",
+          "tableFrom": "predictions",
+          "tableTo": "fixtures",
+          "columnsFrom": [
+            "fixture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ticket_legs": {
+      "name": "ticket_legs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ticket_id": {
+          "name": "ticket_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prediction_id": {
+          "name": "prediction_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payload": {
+          "name": "payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "legs_ticket_idx": {
+          "name": "legs_ticket_idx",
+          "columns": [
+            "ticket_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "ticket_legs_ticket_id_tickets_id_fk": {
+          "name": "ticket_legs_ticket_id_tickets_id_fk",
+          "tableFrom": "ticket_legs",
+          "tableTo": "tickets",
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ticket_legs_prediction_id_predictions_id_fk": {
+          "name": "ticket_legs_prediction_id_predictions_id_fk",
+          "tableFrom": "ticket_legs",
+          "tableTo": "predictions",
+          "columnsFrom": [
+            "prediction_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ticket_quote_legs": {
+      "name": "ticket_quote_legs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "ticket_id": {
+          "name": "ticket_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fixture_id": {
+          "name": "fixture_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payload": {
+          "name": "payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ticket_quote_legs_ticket_id_tickets_id_fk": {
+          "name": "ticket_quote_legs_ticket_id_tickets_id_fk",
+          "tableFrom": "ticket_quote_legs",
+          "tableTo": "tickets",
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ticket_quote_legs_fixture_id_fixtures_id_fk": {
+          "name": "ticket_quote_legs_fixture_id_fixtures_id_fk",
+          "tableFrom": "ticket_quote_legs",
+          "tableTo": "fixtures",
+          "columnsFrom": [
+            "fixture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "tickets": {
+      "name": "tickets",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created": {
+          "name": "created",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "payload": {
+          "name": "payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

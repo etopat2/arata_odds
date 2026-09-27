@@ -1,0 +1,4 @@
+"use client";
+import {Tabs,TabsList,TabsTrigger} from '@/components/ui/tabs';
+import {Input} from '@/components/ui/input';
+export default function DateWindow({range,onChange}:{range:string;onChange:(s:string)=>void}){return <div className="date-window"><Tabs value={range.startsWith('date:')?'custom':range} onValueChange={v=>{if(v!=='custom')onChange(v);}}><TabsList className="range-tabs">{[['live','Live'],['today','Today'],['tomorrow','Tomorrow'],['week','This week'],['upcoming','Upcoming']].map(([id,label])=><TabsTrigger key={id} value={id}>{label}</TabsTrigger>)}</TabsList></Tabs><label className="date-input">Specific day · Kampala<Input type="date" aria-label="Specific match day in Kampala" value={range.startsWith('date:')?range.slice(5):''} onChange={e=>{if(e.target.value)onChange('date:'+e.target.value);}}/></label></div>;}

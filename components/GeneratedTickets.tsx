@@ -1,0 +1,23 @@
+"use client";
+import {memo} from 'react';
+import {marketLabel} from '@/lib/markets.mjs';
+const pct=(n:number)=>(100*n).toFixed(1)+'%';
+export function RiskAdvice({advice}:{advice:any}) {return <div className="ticket-advice"><h4>Ticket advice · {advice.risk}</h4><ul>{advice.messages.map((m:string,i:number)=><li key={i}>{m}</li>)}</ul></div>;}
+function GeneratedTickets({plan,stake,onLoad}:{plan:any;stake:number;onLoad:(ticket:any,index:number)=>void}) {
+ const tickets=plan.tickets.length?plan.tickets:plan.reviewTickets||[],review=!!tickets[0]?.reviewOnly;
+ return <section className="generated-tickets" aria-label="Automatically generated tickets"><div className="section-heading"><div><h2>Your generated tickets</h2><p className="small muted">{tickets.length} alternatives · exactly {plan.legCount} pick{plan.legCount===1?'':'s'} each · {plan.rules.label}</p></div><span className="badge value">Auto generated</span></div>
+  <p className="small muted">{plan.eligibleMatches} qualifying matches · {plan.eligiblePicks} qualifying selections. Ranked by {plan.priority==='value'?'estimated value':'estimated win chance'}. No stake is committed automatically.</p>
+  {plan.engineMessage&&<p className="notice">{plan.engineMessage}</p>}{review&&<p className="notice" role="status">{tickets.length} review alternatives from {plan.engine}. These do not meet the selected {plan.rules.label} target. Their exact chances and risks are shown below.</p>}
+  {!tickets.length?<div className="empty compact" role="status"><h3>{plan.eligibleMatches?`Cannot form ${plan.legCount} distinct qualifying picks`:'Waiting for current priced predictions'}</h3><p>{plan.reason}</p><p>Try Upcoming or more leagues. Every draft needs actual current prices and supported model estimates; live price-only selections can be reviewed manually below.</p></div>:tickets.map((t:any,i:number)=><article className="fixture-card generated-ticket" key={JSON.stringify(t.legs.map((l:any)=>l.id))}>
+    <div className="section-heading"><h3>{i===0?(plan.priority==='chance'?'Highest estimated win chance':'Highest estimated value'):`Alternative ticket ${i+1}`} <span className="muted">· {t.legs.length} picks</span></h3><span className="badge">{t.advice.risk}</span></div>
+    <div className="ticket-metrics"><div><small>Estimated win chance*</small><strong className="mint">{pct(t.probability)}</strong></div><div><small>Combined odds</small><strong>{t.odds.toFixed(2)}×</strong></div><div><small>Return at {stake>0?stake:0} units</small><strong>{(t.odds*Math.max(0,stake||0)).toFixed(2)}</strong></div><div><small>Model expected return*</small><strong>{pct(t.expectedReturn)}</strong></div></div>
+    <ol className="generated-legs">{t.legs.map((l:any)=><li key={l.id}><b>{marketLabel(l)} <span className="mint">@ {l.odds.toFixed(2)}</span></b><small>{l.home} vs {l.away} · {l.league}</small><small>{new Date(l.kickoff).toLocaleString('en-GB',{timeZone:'Africa/Kampala',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} EAT · {pct(l.probability)} model · {(100*l.edge).toFixed(1)} pp edge · {l.confidence} confidence · {l.source}</small></li>)}</ol>
+    <RiskAdvice advice={t.advice}/><details className="reason"><summary>Why these picks?</summary><p>{review?'Review alternatives use current positive-edge predictions with at least 65% individual estimated chance. The selected combined-chance or high-confidence target was not met.':'Current model estimates and matching prices passed the selected probability, confidence and value rules.'} Each match appears once and no teams repeat. {plan.mix?'League concentration is limited.':''}</p>{t.legs.map((l:any)=><p key={l.id}><b>{l.home} vs {l.away}:</b> {l.verdict||'Published model estimate.'} Price from {l.bookmaker}, captured {new Date(l.oddsCaptured).toLocaleTimeString('en-GB',{timeZone:'Africa/Kampala'})} EAT.</p>)}</details>
+    <button className="primary" onClick={()=>onLoad(t,i)}>Review ticket {i+1} · {t.legs.length} picks</button>
+  </article>)}
+  <p className="small muted">*Win chance is the product of the model probabilities, assuming independent matches. Estimates are uncalibrated here and exclude unexpected team news. These are alternative tickets: shared picks mean their results are correlated. More tickets do not create a guaranteed winning portfolio.</p>
+  <p className="small muted">Set a total entertainment budget before choosing a stake; avoid increasing stakes to recover losses. <a href="https://www.gamcare.org.uk/self-help/managing-your-money/" target="_blank" rel="noreferrer">Budget guidance</a>.</p>
+ </section>;
+}
+
+export default memo(GeneratedTickets);

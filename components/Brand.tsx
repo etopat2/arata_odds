@@ -1,0 +1,1 @@
+export default function Brand({compact=false}:{compact?:boolean}){return <div className={'arata-brand'+(compact?' brand-mobile':'')} aria-label="Arata Odds"><img src="/brand/arata-mark.png" alt="" width="48" height="48"/><div><b>Arata<span>Odds</span></b>{!compact&&<small>FOOTBALL INTELLIGENCE</small>}</div></div>;}

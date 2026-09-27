@@ -1,0 +1,16 @@
+"use client";
+import {useState,memo} from 'react';
+import {RISK_PROFILES} from '@/lib/league-tickets.mjs';
+function TicketSettings({options,selected,onChange,mix,onMix,priority,onPriority,maxLegs,onMaxLegs,risk,onRisk}:{options:any[];selected:string[];onChange:(ids:string[])=>void;mix:boolean;onMix:(value:boolean)=>void;priority:string;onPriority:(value:string)=>void;maxLegs:number;onMaxLegs:(value:number)=>void;risk:string;onRisk:(value:string)=>void}) {
+ const [search,setSearch]=useState('');const rules=(RISK_PROFILES as any)[risk];
+ return <div className="fixture-card league-chooser"><h3>Automatic ticket settings</h3><p className="small muted">Tickets rebuild automatically as your date, search, settings or current prices change. Choose the exact number of picks you want.</p>
+  <div className="league-settings"><label>Picks per ticket<select aria-label="Picks per ticket" value={maxLegs} onChange={e=>onMaxLegs(Number(e.target.value))}>{Array.from({length:10},(_,i)=>i+1).map(n=><option key={n} value={n}>{n===1?'1 pick · Single':`${n} picks`}</option>)}</select></label>
+  <label>Risk profile<select aria-label="Ticket risk profile" value={risk} onChange={e=>onRisk(e.target.value)}><option value="cautious">Cautious</option><option value="balanced">Balanced</option><option value="extended">Long ticket · Higher risk</option></select></label>
+  <label>Rank tickets by<select aria-label="Rank suggestions by" value={priority} onChange={e=>onPriority(e.target.value)}><option value="chance">Higher estimated win chance</option><option value="value">Higher estimated value</option></select></label></div>
+  <p className="small muted">{rules.label}: each pick needs at least {Math.round(rules.minLeg*100)}% model probability{rules.highOnly?' and high confidence':' and medium or high confidence'}. The full ticket must have at least {Math.round(rules.minTicket*100)}% estimated win chance. All picks need positive model value and a current price.</p>
+  <label className="league-option"><input type="checkbox" checked={mix} onChange={e=>onMix(e.target.checked)}/><span>Auto mix leagues</span></label><p className="small muted">Mixing uses at least two leagues and no league supplies more than half the picks, rounded up. One selection per match; shared teams are excluded.</p>
+  <details className="generation-leagues"><summary>Choose leagues · {selected.length?selected.length+' selected':'All available leagues'}</summary><p className="small muted">Choose one or several competitions. Your match search and Kampala date window also apply.</p><label className="input-label">Find a league<input className="league-input" aria-label="Find a league" value={search} onChange={e=>setSearch(e.target.value)} placeholder="League name"/></label><button className={'filter-chip '+(!selected.length?'selected':'')} onClick={()=>onChange([])}>All leagues</button><div className="league-options">{options.filter(o=>o.name.toLowerCase().includes(search.toLowerCase())).map(o=><label key={o.id} className={'league-option '+(selected.includes(o.id)?'selected':'')}><input type="checkbox" checked={selected.includes(o.id)} onChange={()=>onChange(selected.includes(o.id)?selected.filter(id=>id!==o.id):[...selected,o.id])}/><span>{o.name}</span><small>{o.count}</small></label>)}</div></details>
+ </div>;
+}
+
+export default memo(TicketSettings);
