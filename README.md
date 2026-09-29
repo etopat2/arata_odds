@@ -114,3 +114,10 @@ Arata v3 now retrains seven core forecasting weights and calibrates its own prob
 Model Lab opens from the header. On mobile the header and bottom navigation stay fixed. Saved tickets have their own Tickets view with team/name search, All/Pending/Running/Won/Lost filters and counts. Pending tickets appear first, with newest first inside each group; settled tickets follow newest first. Build Ticket focuses on generation and review.
 
 Charts load on demand. The initial compiled JavaScript is about 419 KB (132 KB gzip), down from the previous roughly 814 KB (245 KB gzip). Cached match state paints before discovery refresh completes. Independent sources load in parallel; slow coverage probes have short deadlines. Live checks keep their existing strict cadence. See [PERFORMANCE.md](PERFORMANCE.md).
+
+
+### Ticket review and appearance
+
+Generated alternatives open a keyboard-accessible Ticket Review modal. Manual drafts use Review draft. The reference stake only calculates a possible return; saving adds one research record to Tickets. Identical combinations cannot be saved again, including under another name, price or stake.
+
+The header includes a Light/Dark toggle. The original dark palette remains the default; the light palette uses white and gray with deep mint accents. The selected mode is remembered on the device. Motion respects the operating system's reduced-motion preference. Ticket combinations calculate in a dedicated browser worker; a phase indicator distinguishes collecting data, updating forecasts and ranking combinations. No fake percentage completion is shown.

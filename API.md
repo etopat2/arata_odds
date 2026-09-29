@@ -130,3 +130,10 @@ The hosted app exposes the same API with D1 storage. `/api/live/stream` returns 
 ### Hosted refresh progress
 
 On the hosted runtime, `POST /api/refresh?range=upcoming` acknowledges a background refresh with HTTP 202 (`accepted`, `inProgress`). Read `GET /api/sync/status?range=upcoming` until `inProgress` is false. If `nextStage` is `forecast`, POST refresh again with the same range and wait for that phase to finish; `nextStage: ingest` marks a completed cycle. Read `/api/state` after each phase to display available data. Fixture collection and forecasting have separate background lifetimes. Ingestion, research leagues, and forecast writes rotate through bounded batches. Local Node refresh remains synchronous. The original fixture periods, Kampala times and immutable forecast/outcome validation rules remain in force.
+
+
+### Unique ticket collections
+
+Saving an already recorded combination returns HTTP 409 with a readable message. Combination identity uses the teams (canonical aliases), Kampala match date, selection, market, line and period, independent of pick order, name, stake, odds snapshot or predictor. Matching fixture IDs also recognize rescheduled fixtures. Existing tickets are checked without rewriting or deleting them. Deterministic IDs and an atomic ticket/leg insertion prevent concurrent identical saves from creating extra records. A different selection or match remains a separate ticket.
+
+Ticket progress supplies the current published kickoff when available. The Tickets page shows scheduled kickoff in Africa/Kampala for pending legs and hides it after each leg settles, independently of the overall ticket status.

@@ -120,3 +120,14 @@ The portable database adapter now strips statement methods before sending transa
 
 - All 136 automated checks and the TypeScript check passed. A two-phase hosted-runtime refresh completed with 636 fixtures, 2,523 eligible quoted selections and 84 Arata forecasts at 2026-09-27T20:31:57Z. The three concurrent live requests returned valid JSON in 2.8 seconds locally. Collection acknowledged with 202, and both phases finished with no reported error. Counts and timing vary with public source coverage.
 
+
+
+## Ticket collection and appearance — 29 September 2026
+
+- 139 automated checks passed. New coverage verifies canonical duplicate identity, reordered/renamed/repriced and rescheduled tickets, distinct markets/periods, Kampala midnight boundaries and hidden schedules for settled picks. The real save API was exercised against an isolated database: simultaneous matching saves returned 201 and 409, with one ticket and two locked leg rows. Legacy saved records were recognized without migration or deletion.
+- The isolated hosted preview saved a two-match ticket from actual public pre-match quotes and rejected its repeated save with 409. Both pending match schedules appeared in Tickets in EAT. These are local verification records only; the owner's local history and the production database were not used for writes.
+- Ticket Review was visually checked in both palettes on desktop and at 390 by 844 on mobile. The modal stayed within the viewport, its body scrolled, no horizontal overflow occurred, and Escape restored focus to Review draft. Dark mode and its original colors remain the default. Theme persistence and the header toggle were verified; the temporary viewport override was reset.
+- The compiled browser worker returned ticket plans without screen errors. Actual collection/forecast phases displayed the animated indicator and replaced the empty-state message while running. Controls remain usable during analysis. The global reduced-motion media rule disables nonessential motion.
+- Proof screenshots are supplied alongside the source archive: Arata-Odds-ticket-review-light.png, Arata-Odds-ticket-review-mobile.png, Arata-Odds-ticket-review-dark.png and Arata-Odds-analysis-light.png.
+
+- Final isolated hosted loading check finished both refresh phases at 2026-09-29T13:19:12Z, with 730 fixtures, 21,430 current quoted selections and 88 Arata forecast fixtures. Three concurrent live requests returned valid JSON in approximately 3.7 seconds locally; source coverage remains partial.
