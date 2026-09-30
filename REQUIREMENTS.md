@@ -1,4 +1,6 @@
-# Requirements audit — 26 September 2026
+# Requirements audit — 26 September 2026 (updated 30 September)
+
+The table below records the original personal MVP audit. The current release adds server-managed administrator/user accounts, forced first-login password changes, per-user ticket collections, a daily guidance workflow, improved Fixtures status filtering, and native browser PWA installation controls. The supported full deployments are Node.js with persistent SQLite/PostgreSQL or the Cloudflare-compatible Worker with D1. InfinityFree's free PHP/MySQL hosting cannot run this backend or its unattended schedule; see [INFINITYFREE.md](INFINITYFREE.md). No prediction or ticket can guarantee a win. Current public feeds may leave daily suggestions empty rather than creating unsupported picks.
 
 The app runs locally at http://localhost:5173. Core features are implemented, but complete automated odds coverage for every requested bookmaker is not available in this release.
 

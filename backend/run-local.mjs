@@ -1,6 +1,8 @@
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import './build.mjs';
+process.env.ARATA_ADMIN_INITIAL_PASSWORD ||= 'Admin@123';
+process.env.ARATA_ADMIN_EMAIL ||= 'etomet2patrick@gmail.com';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const children=new Set();let stopping=false;
 function start(args){

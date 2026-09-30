@@ -1,6 +1,7 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
 import Home from '../app/page';
+import AccountAccess from '../components/AccountAccess';
 import '../app/globals.css';
 import '../app/experience.css';
 class AppBoundary extends React.Component<React.PropsWithChildren, {error:boolean}> {
@@ -9,4 +10,4 @@ class AppBoundary extends React.Component<React.PropsWithChildren, {error:boolea
  componentDidCatch(error:Error){console.error('Arata screen failed:',error);}
  render(){return this.state.error?<main><h1>Arata Odds</h1><p>This screen could not load. Your saved records remain in the database.</p><button onClick={()=>location.reload()}>Reload app</button></main>:this.props.children;}
 }
-createRoot(document.getElementById('root')!).render(<AppBoundary><Home/></AppBoundary>);
+createRoot(document.getElementById('root')!).render(<AppBoundary><AccountAccess>{(user,onUpdateUser,onLogout)=><Home user={user} onUpdateUser={onUpdateUser} onLogout={onLogout}/>}</AccountAccess></AppBoundary>);

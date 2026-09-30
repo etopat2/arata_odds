@@ -1,6 +1,6 @@
 # Arata Odds
 
-Personal mobile-first football research: fixtures, real bookmaker snapshots, published probabilities, value comparisons, ticket records and prediction history. All schedules and date boundaries use Africa/Kampala (EAT, UTC+3). No personal sports API keys are required.
+Mobile-first football research for an administrator and invited users: fixtures, real bookmaker snapshots, published and independent probabilities, value comparisons, daily guidance tickets and prediction history. All schedules and date boundaries use Africa/Kampala (EAT, UTC+3). No personal sports API keys or ChatGPT sign-in are required.
 
 ## Start
 
@@ -12,6 +12,8 @@ npm run start:local
 ```
 
 Open http://localhost:5173. On Windows, double-click Start-Arata-Odds.cmd to start the app and open it in your browser. The launcher checks both services, reuses an existing healthy instance and starts hidden background processes. A supervisor restarts either service after an unexpected exit. Logs are in .local-data/runtime.log. Repeated startup failures stop retries and are reported.
+
+On a fresh local database, sign in with `etomet2patrick@gmail.com` (or login name `etomet2patrick`) and the temporary password `Admin@123`. Change it immediately when prompted. The administrator creates other accounts from **Admin** using a name, email and phone. New users start with temporary password `arataodds123` and must change it at first sign-in. Use a unique random `ARATA_ADMIN_INITIAL_PASSWORD` for any publicly accessible deployment; the documented local default must never be published. The app stores salted password hashes and separate login sessions. Profile edits cannot change the account email.
 
 The local React/Vite frontend proxies /api to the Node backend at 127.0.0.1:3001. SQLite persistence under .local-data works immediately. First refresh can take several seconds. npm run dev:portable runs the same app in a foreground terminal; keep that terminal open. The launcher must be run again after a computer restart.
 
@@ -71,7 +73,7 @@ Request memoization → in-flight deduplication → bounded memory → database 
 
 Shared React frontend: app/ and components/. Local entry and configuration: frontend/ and vite.local.config.mjs. The optional Vinext/D1 entry remains available. API/domain logic: lib/. Portable Node and PostgreSQL adapter: backend/. D1 schema: db/ and drizzle/. Pure validation: tests/. API routes and examples: API.md.
 
-The installable web manifest includes sized normal/maskable icons, installation help and an offline screen. See [PWA.md](PWA.md) for installation and offline behavior. Odds and APIs are never served from service-worker cache. No native wrapper is included. The portable backend binds to loopback. The hosted personal app uses the hosting platform’s owner-only access policy; multi-user accounts remain outside this MVP.
+The installable web manifest includes sized normal/maskable icons and an offline screen. Browsers present their native install control when eligible; there is no in-page install button. See [PWA.md](PWA.md). Odds and APIs are never served from service-worker cache. No native wrapper is included. The portable backend binds to loopback. Accounts and tickets are stored on the server and scoped by user.
 
 ## Checks
 
@@ -112,6 +114,8 @@ Arata v3 now retrains seven core forecasting weights and calibrates its own prob
 ## Release: performance and navigation
 
 Model Lab opens from the header. On mobile the header and bottom navigation stay fixed. Saved tickets have their own Tickets view with team/name search, All/Pending/Running/Won/Lost filters and counts. Pending tickets appear first, with newest first inside each group; settled tickets follow newest first. Build Ticket focuses on generation and review.
+
+At the Kampala day boundary, the background scheduler checks current forecasts and prices and saves up to three qualifying, deduplicated guidance combinations per active account in **Tickets**. Opening the app also queues a retry when no qualifying prices were available. These automatically recorded suggestions need no manual review and do not place wagers. Manual tickets retain their price review step. A scheduled attempt may have no ticket when trustworthy, current model and bookmaker coverage is insufficient; the Tickets view shows the reason. See [DEPLOYMENT.md](DEPLOYMENT.md) for scheduler requirements and [INFINITYFREE.md](INFINITYFREE.md) for the InfinityFree limitation.
 
 Charts load on demand. The initial compiled JavaScript is about 419 KB (132 KB gzip), down from the previous roughly 814 KB (245 KB gzip). Cached match state paints before discovery refresh completes. Independent sources load in parallel; slow coverage probes have short deadlines. Live checks keep their existing strict cadence. See [PERFORMANCE.md](PERFORMANCE.md).
 

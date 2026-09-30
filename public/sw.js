@@ -1,4 +1,4 @@
-const CACHE='arata-offline-v7';
+const CACHE='arata-offline-v8';
 const STATIC=['/offline.html','/manifest.webmanifest','/brand/arata-mark.png','/brand/icon-180.png','/brand/icon-192.png','/brand/icon-512.png','/brand/icon-maskable-512.png'];
 async function cacheShell(cache,response){
  if(!response.ok)return;
