@@ -2,11 +2,12 @@ import {db,saveHistoricalResults} from './store';
 import {historicalKey,validHistoricalResult} from './historical-archive.mjs';
 import {usableActive} from './learning-engine.mjs';
 import {parseHistoricalCsv} from './arata-model.mjs';
+import {normalizeSupportContacts} from './support-settings.mjs';
 
 export const BACKUP_VERSION=1;
-export const BACKUP_TABLES=['fixtures','predictions','odds_snapshots','tickets','ticket_legs','ticket_quote_legs','historical_results','api_cache'] as const;
+export const BACKUP_TABLES=['fixtures','predictions','odds_snapshots','tickets','ticket_legs','ticket_quote_legs','historical_results','api_cache','app_settings'] as const;
 type Table=typeof BACKUP_TABLES[number];
-const keys:Record<Table,string>={fixtures:'id',predictions:'id',odds_snapshots:'id',tickets:'id',ticket_legs:'id',ticket_quote_legs:'id',historical_results:'id',api_cache:'key'};
+const keys:Record<Table,string>={fixtures:'id',predictions:'id',odds_snapshots:'id',tickets:'id',ticket_legs:'id',ticket_quote_legs:'id',historical_results:'id',api_cache:'key',app_settings:'key'};
 const cacheFilter="(key='learning:registry:v1' OR key LIKE 'learning:audit:%' OR key LIKE 'model-evidence:%' OR key LIKE 'advanced-context:v4:%')";
 const historyCodes:Record<string,string>={epl:'E0',bundesliga:'D1','la-liga':'SP1','serie-a':'I1','ligue-1':'F1',mls:'USA'};
 function tableName(value:string):Table{if(!BACKUP_TABLES.includes(value as Table))throw new Error('Unknown backup section.');return value as Table;}
@@ -32,6 +33,7 @@ export async function importBackupBatch(section:string,input:any[],adminId:strin
   else if(table==='ticket_quote_legs'){requireRecord(identifier(id)&&identifier(row.ticket_id)&&identifier(row.fixture_id)&&object(value));commands.push(db().prepare('INSERT INTO ticket_quote_legs(id,ticket_id,fixture_id,payload) VALUES(?,?,?,?) ON CONFLICT(id) DO NOTHING').bind(id,row.ticket_id,row.fixture_id,row.payload));}
   else if(table==='historical_results'){requireRecord(identifier(id)&&value.leagueId===row.league_id&&value.kickoff===row.kickoff&&value.source===row.source&&id===historicalKey(value)&&validHistoricalResult(value));commands.push(db().prepare('INSERT INTO historical_results(id,league_id,kickoff,source,payload) VALUES(?,?,?,?,?) ON CONFLICT(id) DO NOTHING').bind(id,row.league_id,row.kickoff,row.source,row.payload));}
   else if(table==='api_cache'){requireRecord(identifier(row.key)&&(row.key==='learning:registry:v1'||/^(learning:audit:|model-evidence:|advanced-context:v4:)/.test(row.key))&&object(value));if(row.key==='learning:registry:v1'&&object(value.data))value.data={...value.data,importedActive:usableActive(value.data.active)||null,active:null,status:'collecting',message:'Imported learning profile awaits validation against restored outcomes.'};const expiry=row.key.startsWith('advanced-context:')?Math.max(Number(row.expires)||0,Date.now()+6*3600000):Number.MAX_SAFE_INTEGER;commands.push(db().prepare('INSERT INTO api_cache(key,expires,payload) VALUES(?,?,?) ON CONFLICT(key) DO NOTHING').bind(row.key,expiry,JSON.stringify(value)));}
+  else if(table==='app_settings'){requireRecord(row.key==='support_contacts'&&iso(row.updated));const contacts=normalizeSupportContacts(value);commands.push(db().prepare('INSERT INTO app_settings(key,payload,updated) VALUES(?,?,?) ON CONFLICT(key) DO NOTHING').bind('support_contacts',JSON.stringify(contacts),row.updated));}
   else throw new Error('Unknown backup section.');
  }
  await db().batch(commands);return {table,processed:input.length,mode:'merge',note:'Existing records were kept; accounts, passwords and sessions are excluded.'};}

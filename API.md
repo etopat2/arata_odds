@@ -1,6 +1,6 @@
 # Arata Odds API
 
-All endpoints except `/api/health` and `/api/auth/login` require an active same-origin `arata_session` cookie. Password changes revoke existing sessions. Users with a temporary password can access only `/api/auth/me`, `/api/auth/password` and logout until it is changed. Mutations require a matching `Origin` and JSON where a body is accepted. The server, not the browser, enforces account roles and ticket ownership.
+All endpoints except `/api/health`, `GET /api/support` and `/api/auth/login` require an active same-origin `arata_session` cookie. Password changes revoke existing sessions. Users with a temporary password can access only `/api/auth/me`, `/api/auth/password` and logout until it is changed. Mutations require a matching `Origin` and JSON where a body is accepted. The server, not the browser, enforces account roles and ticket ownership.
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
@@ -11,7 +11,9 @@ All endpoints except `/api/health` and `/api/auth/login` require an active same-
 | GET / POST | `/api/admin/users` | Administrator lists or creates accounts. Creation requires name, email and phone and returns a temporary password. |
 | PATCH / DELETE | `/api/admin/users/:id` | Administrator edits role/details/active status or removes access; deletion is a soft delete. |
 | POST | `/api/admin/users/:id/reset-password` | Administrator issues a temporary password and revokes sessions. |
-| GET | `/api/admin/backup?table=fixtures&after=...&limit=35` | Administrator reads one page of portable sports-data records. Allowed tables: fixtures, predictions, odds_snapshots, tickets, ticket_legs, ticket_quote_legs, historical_results, api_cache. |
+| GET | `/api/support` | Public current owner/support email and international WhatsApp number. No response cache. |
+| POST | `/api/admin/settings/support` | Administrator changes contacts. Body: `{ "email": "owner@example.com", "whatsapp": "+256791170164" }`. Use international phone format. |
+| GET | `/api/admin/backup?table=fixtures&after=...&limit=35` | Administrator reads one page of portable sports-data records. Allowed tables: fixtures, predictions, odds_snapshots, tickets, ticket_legs, ticket_quote_legs, historical_results, api_cache, app_settings. |
 | POST | `/api/admin/backup/prepare` | Preserve verified Football-Data.co.uk CSV results already cached for one supported league before export. Body: `{ "league": "epl" }`. |
 | POST | `/api/admin/backup/import` | Administrator merges one validated batch of 1–50 rows. Body: `{ "table": "fixtures", "rows": [...] }`. Existing rows are kept. |
 | POST | `/api/admin/backup/finalize` | Clears in-memory views and schedules a learning recheck after import. |

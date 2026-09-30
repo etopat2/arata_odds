@@ -12,3 +12,4 @@ export const ticketQuoteLegs = sqliteTable('ticket_quote_legs', { id: text('id')
 
 export const predictionHeads = sqliteTable('prediction_heads',{fixtureId:text('fixture_id').notNull(),predictor:text('predictor').notNull(),market:text('market').notNull(),selection:text('selection').notNull(),lineKey:text('line_key').notNull(),predictionId:text('prediction_id').notNull(),created:text('created').notNull()},t=>[primaryKey({columns:[t.fixtureId,t.predictor,t.market,t.selection,t.lineKey]})]);
 export const historicalResults = sqliteTable('historical_results',{id:text('id').primaryKey(),leagueId:text('league_id').notNull(),kickoff:text('kickoff').notNull(),source:text('source').notNull(),payload:text('payload').notNull()},t=>[index('historical_results_league_kickoff_idx').on(t.leagueId,t.kickoff)]);
+export const appSettings = sqliteTable('app_settings',{key:text('key').primaryKey(),payload:text('payload').notNull(),updated:text('updated').notNull()});

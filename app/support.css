@@ -5,6 +5,20 @@
 .support-contacts a:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 .support-contacts.compact{justify-content:flex-start;margin-top:12px}
 .account-card .support-contacts{padding-top:13px;border-top:1px solid var(--border)}
+.account-management .panel-card.support-settings-panel{position:relative;overflow:hidden;border-color:color-mix(in srgb,var(--primary) 27%,var(--border));background:linear-gradient(125deg,color-mix(in srgb,var(--primary) 7%,var(--card)),var(--card) 56%)}
+.support-settings-panel::before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,var(--primary),transparent 70%)}
+.support-settings-panel .eyebrow,.support-settings-panel label>span{display:inline-flex;align-items:center;gap:7px}
+.support-settings-panel .section-heading p{max-width:640px;margin-top:7px}
+.support-settings-panel .account-form{margin-top:21px}
+.support-settings-panel input{border-color:var(--border);background:var(--background);color:var(--foreground)}
+.support-settings-panel input:focus{outline-color:var(--primary)}
+.support-settings-panel label small{font-size:11px;font-weight:400}
+.support-settings-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.support-settings-actions button{width:auto;min-height:42px}
+.support-settings-preview{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);font-size:12px}
+.support-settings-preview>span{margin-right:4px;color:var(--muted-foreground);font-weight:700}
+.support-settings-preview a{padding:5px 9px;border:1px solid var(--border);border-radius:999px;color:var(--primary);text-decoration:none}
+.support-settings-preview a:hover{text-decoration:underline;border-color:var(--primary)}
 .mobile-drawer-bottom .support-contacts{margin:0 0 14px;justify-content:center}
 .mobile-drawer-bottom .support-contacts>span{width:100%;text-align:center}
 .mobile-drawer-bottom .support-contacts a{font-size:11px}

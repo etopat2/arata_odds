@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, payload TEXT NOT NULL, updated TEXT NOT NULL);

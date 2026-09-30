@@ -5,6 +5,7 @@ import {readFileSync} from 'node:fs';
 import {build} from 'esbuild';
 import {analyzeFixture} from '../lib/match-analysis.mjs';
 import {historicalKey,validHistoricalResult} from '../lib/historical-archive.mjs';
+import {normalizeSupportContacts,whatsappUrl} from '../lib/support-settings.mjs';
 
 const now=Date.now(),kickoff=new Date(now+3*3600000).toISOString(),captured=new Date(now).toISOString();
 const fixture={id:'match-1',home:'Arsenal',away:'Chelsea',league:'Premier League',leagueId:'epl',kickoff,status:'scheduled',quotes:[{market:'DOUBLE_CHANCE',selection:'1X',line:null,period:'FT',odds:1.7,bookmaker:'Example',captured}],arataModel:{available:true,created:captured,expectedGoals:{home:2.2,away:.7},probabilities:{home:.7,draw:.2,away:.1},markets:[],evidence:{stale:false,leagueMatches:350,homeMatches:36,awayMatches:36,homeForm:[],awayForm:[],h2h:[],sources:['Football-Data.co.uk'],learning:{status:'validated-active'}}}};
@@ -14,6 +15,13 @@ test('Match Lab distinguishes likely scores, risk bands and a genuinely fresh va
  const expired=analyzeFixture({...fixture,quotes:fixture.quotes.map(q=>({...q,captured:new Date(now-5*60000).toISOString()}))},now);assert.equal(expired.decision,'avoid');assert.ok(expired.tiers.every(t=>!t.actionable));assert.ok(expired.options.every(o=>o.odds===null));
  const finished=analyzeFixture({...fixture,status:'finished'},now);assert.equal(finished.decision,'avoid');
  const unsupported=analyzeFixture({...fixture,arataModel:{available:false,reason:'Not enough results.'}},now);assert.deepEqual(unsupported.scorelines,[]);assert.match(unsupported.decisionReason,/Not enough results/);
+});
+
+test('support contacts accept only an email and an international WhatsApp number',()=>{
+ assert.deepEqual(normalizeSupportContacts({email:' Help@Example.com ',whatsapp:' +256 791 170 164 '}),{email:'help@example.com',whatsapp:'+256791170164'});
+ assert.equal(whatsappUrl('+256791170164'),'https://wa.me/256791170164');
+ assert.throws(()=>normalizeSupportContacts({email:'bad',whatsapp:'+256791170164'}),/valid support email/);
+ assert.throws(()=>normalizeSupportContacts({email:'help@example.com',whatsapp:'javascript:alert(1)'}),/international format/);
 });
 
 test('portable archive merges sports records, remaps ticket owner and rejects unverified history',async()=>{
@@ -30,6 +38,8 @@ test('portable archive merges sports records, remaps ticket owner and rejects un
   await assert.rejects(()=>importBackupBatch('historical_results',[{id:'fake',league_id:'epl',kickoff:historical.kickoff,source:historical.source,payload:JSON.stringify({...historical,score:{home:99,away:0}})}],'new-admin'),/invalid record/);assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM historical_results').get().n,1);
   const csvDay=new Date(now-8*86400000),csvDate=[String(csvDay.getUTCDate()).padStart(2,'0'),String(csvDay.getUTCMonth()+1).padStart(2,'0'),csvDay.getUTCFullYear()].join('/');sqlite.prepare('INSERT INTO api_cache(key,expires,payload) VALUES(?,?,?)').run('https://www.football-data.co.uk/mmz4281/2526/E0.csv',now+86400000,JSON.stringify({data:`Date,HomeTeam,AwayTeam,FTHG,FTAG\n${csvDate},Aston Villa,Liverpool,1,0\n`}));assert.ok((await seedHistoricalArchive('epl')).archived>=1);assert.equal(sqlite.prepare('SELECT COUNT(*) n FROM historical_results').get().n,2);
   await assert.rejects(()=>exportBackupPage('auth_users'),/Unknown backup section/);
+  await importBackupBatch('app_settings',[{key:'support_contacts',payload:JSON.stringify({email:'help@example.com',whatsapp:'+256791170164'}),updated:captured}],'new-admin');assert.equal((await exportBackupPage('app_settings')).rows.length,1);
+  await assert.rejects(()=>importBackupBatch('app_settings',[{key:'support_contacts',payload:JSON.stringify({email:'bad',whatsapp:'+256791170164'}),updated:captured}],'new-admin'),/valid support email/);
  }finally{delete globalThis.__ARATA_DB;sqlite.close();}
 });
 
@@ -39,9 +49,12 @@ test('analyzer is available to signed-in users while backup stays administrator-
  try{const bundle=await build({entryPoints:['lib/service.ts'],bundle:true,platform:'node',format:'esm',write:false,plugins:[{name:'test-env',setup(b){b.onResolve({filter:/^cloudflare:workers$/},()=>({path:'env',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:"export const env={DB:globalThis.__ARATA_DB,ARATA_ADMIN_INITIAL_PASSWORD:'TestAdmin@123',ARATA_ADMIN_EMAIL:'admin@example.test'};",loader:'js'}));}}]});const {handle}=await import('data:text/javascript;base64,'+Buffer.from(bundle.outputFiles[0].text).toString('base64'));
   sqlite.prepare('INSERT INTO fixtures VALUES(?,?,?,?)').run(fixture.id,fixture.kickoff,JSON.stringify(fixture),captured);
   const origin='http://localhost',post=(path,body,cookie)=>handle(new Request(origin+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json',...(cookie?{Cookie:cookie}:{})},body:JSON.stringify(body)})),get=(path,cookie)=>handle(new Request(origin+path,{headers:cookie?{Cookie:cookie}:{}}));
+  assert.equal((await get('/api/support')).status,200);assert.equal((await (await get('/api/support')).json()).email,'etopat@gmail.com');assert.equal((await post('/api/admin/settings/support',{email:'help@example.com',whatsapp:'+256791170164'})).status,401);
   assert.equal((await get('/api/admin/backup?table=fixtures')).status,401);
   let login=await post('/api/auth/login',{identity:'admin@example.test',password:'TestAdmin@123'}),cookie=login.headers.get('set-cookie').split(';')[0];assert.equal((await post('/api/auth/password',{currentPassword:'TestAdmin@123',newPassword:'VerifiedAdmin@123456'},cookie)).status,200);login=await post('/api/auth/login',{identity:'admin@example.test',password:'VerifiedAdmin@123456'});cookie=login.headers.get('set-cookie').split(';')[0];
   const report=await get('/api/match/analyze?id='+fixture.id,cookie);assert.equal(report.status,200);assert.equal((await report.json()).scorelines.length,5);const backup=await get('/api/admin/backup?table=fixtures',cookie);assert.equal(backup.status,200);assert.equal((await backup.json()).rows.length,1);
+  assert.equal((await post('/api/admin/settings/support',{email:'help@example.com',whatsapp:'+256791170164'},cookie)).status,200);assert.equal((await (await get('/api/support')).json()).email,'help@example.com');const previousError=console.error;let invalidStatus;try{console.error=()=>{};invalidStatus=(await post('/api/admin/settings/support',{email:'bad',whatsapp:'+256791170164'},cookie)).status;}finally{console.error=previousError;}assert.equal(invalidStatus,400);assert.equal((await (await get('/api/support')).json()).email,'help@example.com');assert.equal((await (await get('/api/admin/backup?table=app_settings',cookie)).json()).rows.length,1);
   const created=await post('/api/admin/users',{firstName:'Sample',lastName:'Reader',email:'reader@example.test',phone:'0700000000'},cookie);assert.equal(created.status,201);const temporary=(await created.json()).temporaryPassword;let member=await post('/api/auth/login',{identity:'reader@example.test',password:temporary}),memberCookie=member.headers.get('set-cookie').split(';')[0];assert.equal((await post('/api/auth/password',{currentPassword:temporary,newPassword:'ReaderPassword@123456'},memberCookie)).status,200);member=await post('/api/auth/login',{identity:'reader@example.test',password:'ReaderPassword@123456'});memberCookie=member.headers.get('set-cookie').split(';')[0];assert.equal((await get('/api/admin/backup?table=fixtures',memberCookie)).status,403);assert.equal((await get('/api/match/analyze?id='+fixture.id,memberCookie)).status,200);
+  assert.equal((await post('/api/admin/settings/support',{email:'member@example.com',whatsapp:'+256791170164'},memberCookie)).status,403);
  }finally{delete globalThis.__ARATA_DB;sqlite.close();}
 });
