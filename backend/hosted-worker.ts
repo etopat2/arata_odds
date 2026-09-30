@@ -22,7 +22,12 @@ export default {
     if(url.pathname==='/api/live'||url.pathname==='/api/tickets')await refreshLive().catch(console.error);
     return await handle(request);}catch(error){console.error('API response:',error);return jsonResponse({error:'The data service is temporarily unavailable. Please retry.'},{status:503,headers:{'Cache-Control':'no-store'}});}
    }
-   const response=await env.ASSETS.fetch(request);
+   // The production asset binding does not apply the SPA fallback to this route.
+   // Keep the browser URL so the client can render the public legal page.
+   const assetRequest=url.pathname==='/legal'||url.pathname==='/legal/'
+    ?new Request(new URL('/',url),request)
+    :request;
+   const response=await env.ASSETS.fetch(assetRequest);
    const headers=new Headers(response.headers);
    headers.set('Cache-Control',url.pathname.startsWith('/assets/')?'public, max-age=31536000, immutable':url.pathname==='/sw.js'?'no-cache':'private, max-age=0, must-revalidate');
    headers.set('X-Content-Type-Options','nosniff');

@@ -1,3 +1,5 @@
+'use client';
+import {useEffect} from 'react';
 import {ArrowLeft,ArrowUpRight,BookOpen,Database,HeartHandshake,LockKeyhole,Scale,ShieldAlert} from 'lucide-react';
 import Brand from './Brand';
 import ThemeToggle from './ThemeToggle';
@@ -7,6 +9,12 @@ const updated='30 September 2026';
 const external=(href:string,label:string)=><a href={href} target="_blank" rel="noopener noreferrer">{label}<ArrowUpRight size={13} aria-hidden="true"/></a>;
 
 export default function LegalCenter(){
+ useEffect(()=>{
+  const scrollToSection=()=>{const id=window.location.hash.slice(1);if(id)document.getElementById(id)?.scrollIntoView({block:'start'});};
+  const frame=window.requestAnimationFrame(scrollToSection);
+  window.addEventListener('hashchange',scrollToSection);
+  return ()=>{window.cancelAnimationFrame(frame);window.removeEventListener('hashchange',scrollToSection);};
+ },[]);
  return <main className="legal-page" id="top"><header className="legal-header"><a href="/" className="legal-brand-link" aria-label="Return to Arata Odds"><Brand compact/></a><div className="legal-header-actions"><ThemeToggle/><a href="/" className="legal-home-link"><ArrowLeft size={16}/>Back to app</a></div></header>
   <div className="legal-shell"><section className="legal-hero"><div className="legal-hero-mark"><Scale size={30}/></div><p className="eyebrow">ARATA ODDS · INFORMATION CENTRE</p><h1>Clear terms.<br/><span className="mint">Clear expectations.</span></h1><p>Understand how Arata Odds works, what its forecasts can and cannot tell you, and how your account information is handled.</p><div className="legal-hero-meta"><span>Updated {updated}</span><span>All times shown in East Africa Time</span><span>Football research · No wager placement</span></div></section>
    <div className="legal-layout"><aside className="legal-toc"><span className="legal-toc-label">ON THIS PAGE</span><nav aria-label="On this page"><a href="#overview"><BookOpen size={16}/>At a glance</a><a href="#terms"><Scale size={16}/>Terms of use</a><a href="#disclaimer"><ShieldAlert size={16}/>Prediction disclaimer</a><a href="#privacy"><LockKeyhole size={16}/>Privacy notice</a><a href="#responsible-use"><HeartHandshake size={16}/>Responsible use</a><a href="#sources"><Database size={16}/>Data & sources</a></nav><div className="legal-toc-note">A prediction is a probability estimate, not a promise of a result.</div></aside>
