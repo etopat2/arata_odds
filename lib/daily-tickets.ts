@@ -21,6 +21,8 @@ export async function ensureDailyForAll(loadState:(id:string)=>Promise<any>,save
  const cursorKey=`daily-ticket-cursor:${day()}`,cursor=Number((await cachedRead(cursorKey))?.data||0);
  let start=cursor,people=await db().prepare('SELECT id FROM auth_users WHERE active=1 AND deleted_at IS NULL ORDER BY created LIMIT 20 OFFSET ?').bind(start).all();
  if(!people.results.length&&start){start=0;people=await db().prepare('SELECT id FROM auth_users WHERE active=1 AND deleted_at IS NULL ORDER BY created LIMIT 20').all();}
- for(const person of people.results as any[])await ensureDailyTickets(person.id,loadState,save);
+ let shared:Promise<any>|undefined;
+ const commonState=(id:string)=>shared??=loadState(id);
+ for(const person of people.results as any[])await ensureDailyTickets(person.id,commonState,save);
  await cachedWrite(cursorKey,Number.MAX_SAFE_INTEGER,{data:start+people.results.length});
 }
