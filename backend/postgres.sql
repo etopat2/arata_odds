@@ -21,3 +21,5 @@ CREATE TABLE IF NOT EXISTS auth_users (id TEXT PRIMARY KEY, username TEXT NOT NU
 CREATE TABLE IF NOT EXISTS auth_sessions (token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES auth_users(id), created BIGINT NOT NULL, expires BIGINT NOT NULL);
 CREATE INDEX IF NOT EXISTS auth_sessions_user_idx ON auth_sessions(user_id);
 CREATE INDEX IF NOT EXISTS auth_sessions_expires_idx ON auth_sessions(expires);
+CREATE TABLE IF NOT EXISTS historical_results (id TEXT PRIMARY KEY, league_id TEXT NOT NULL, kickoff TEXT NOT NULL, source TEXT NOT NULL, payload TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS historical_results_league_kickoff_idx ON historical_results(league_id,kickoff);

@@ -5,6 +5,8 @@ import AccountAccess from '../components/AccountAccess';
 import '../app/globals.css';
 import '../app/experience.css';
 import '../app/mobile-menu.css';
+import '../app/analyzer.css';
+import '../app/support.css';
 class AppBoundary extends React.Component<React.PropsWithChildren, {error:boolean}> {
  state={error:false};
  static getDerivedStateFromError(){return {error:true};}

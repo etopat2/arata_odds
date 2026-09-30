@@ -39,7 +39,7 @@ const failure=(error:any)=>reply({error:error instanceof Error?error.message:'Re
 async function lockout(identity:string,request:Request){const key='login:'+await sha(identity+'|'+(request.headers.get('cf-connecting-ip')||request.headers.get('x-forwarded-for')||'local'));const now=Date.now();const row:any=await db().prepare('SELECT expires,payload FROM api_cache WHERE key=?').bind(key).first();const prior=row&&row.expires>now?JSON.parse(row.payload):{data:{count:0}};if(prior.data.count>=5)throw Object.assign(new Error('Too many sign-in attempts. Try again in 15 minutes.'),{status:429});return {key,count:prior.data.count};}
 async function failLogin(attempt:any){await db().prepare('INSERT INTO api_cache(key,expires,payload) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET expires=excluded.expires,payload=excluded.payload').bind(attempt.key,Date.now()+900000,JSON.stringify({data:{count:attempt.count+1}})).run();}
 export async function authRoute(request:Request):Promise<Response|null>{
- const path=new URL(request.url).pathname;if(!path.startsWith('/api/auth/')&&!path.startsWith('/api/admin/'))return null;
+ const path=new URL(request.url).pathname;if(!path.startsWith('/api/auth/')&&!path.startsWith('/api/admin/users'))return null;
  try{
   if(!requireOrigin(request))return reply({error:'Request origin is not allowed.'},403);
   await bootstrapAdmin();

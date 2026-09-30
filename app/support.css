@@ -1,0 +1,13 @@
+.support-contacts{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 10px;color:var(--muted-foreground);font-size:12px}
+.support-contacts>span{font-weight:650;letter-spacing:.02em}
+.support-contacts a{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:31px;padding:5px 10px;border:1px solid var(--border);border-radius:999px;background:color-mix(in srgb,var(--card) 82%,transparent);color:var(--foreground);font-weight:650;text-decoration:none;transition:color .2s ease,border-color .2s ease,background .2s ease,transform .2s ease,box-shadow .2s ease}
+.support-contacts a:hover{color:var(--primary);border-color:color-mix(in srgb,var(--primary) 55%,var(--border));background:color-mix(in srgb,var(--primary) 9%,var(--card));box-shadow:0 5px 18px color-mix(in srgb,var(--primary) 13%,transparent);transform:translateY(-2px)}
+.support-contacts a:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.support-contacts.compact{justify-content:flex-start;margin-top:12px}
+.account-card .support-contacts{padding-top:13px;border-top:1px solid var(--border)}
+.mobile-drawer-bottom .support-contacts{margin:0 0 14px;justify-content:center}
+.mobile-drawer-bottom .support-contacts>span{width:100%;text-align:center}
+.mobile-drawer-bottom .support-contacts a{font-size:11px}
+main>footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+@media(max-width:700px){main>footer{justify-content:center;text-align:center}.support-contacts{justify-content:center}}
+@media(prefers-reduced-motion:reduce){.support-contacts a{transition:none}.support-contacts a:hover{transform:none}}

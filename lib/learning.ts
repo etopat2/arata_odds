@@ -5,6 +5,7 @@ import {modelTeam} from './arata-model.mjs';
 
 const KEY='learning:registry:v1';
 let registry:any=null,loaded=false,lastChecked=0;
+export function resetLearningCache(){registry=null;loaded=false;lastChecked=0;}
 function learningWork():any{return requestState('learning-work',()=>({job:null,timer:undefined}));}
 export async function learningRegistry(){if(!loaded){registry=(await cachedRead(KEY))?.data||{schema:LEARNING_SCHEMA,status:'collecting',active:null,runs:[],message:'Collecting immutable pre-match forecasts and verified outcomes.',rules:LEARNING_RULES};loaded=true;}const active=usableActive(registry.active);return {...registry,...(registry.active&&!active?{status:'collecting',message:'Previous learning update expired; starting rules are used while new evidence is checked.'}:{}),active,running:!!learningWork().job};}
 export async function learningProfile(){return (await learningRegistry()).active;}

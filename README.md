@@ -2,6 +2,12 @@
 
 Mobile-first football research for an administrator and invited users: fixtures, real bookmaker snapshots, published and independent probabilities, value comparisons, daily guidance tickets and prediction history. All schedules and date boundaries use Africa/Kampala (EAT, UTC+3). No personal sports API keys or ChatGPT sign-in are required.
 
+For account or app support, email [etopat@gmail.com](mailto:etopat@gmail.com) or [contact the owner on WhatsApp](https://wa.me/256791170164). These links appear on the sign-in screen, mobile menu and dashboard footer; they do not send messages automatically.
+
+**Match Lab** searches fixtures by team or league, then creates a focused forecast with 1X2 probabilities, indicative full-time scorelines, source-backed form/H2H/squad evidence, and lower-, moderate- and higher-risk market scenarios. A ticket recommendation requires fresh exact-market bookmaker prices and sufficient verified model evidence; otherwise it advises skipping the match. On mobile, Match Lab is in the fixed bottom navigation; History, Model Lab, Profile and Admin are in the right-hand menu.
+
+The **Admin** page searches user accounts and opens Add user in a dedicated modal. Its Data portability panel exports a JSON archive of fixtures, verified history, forecasts, outcomes, price snapshots, ticket records and learning/research context. Import merges the archive into another local setup without copying passwords or sessions. Existing records remain intact; ticket ownership maps by email or falls back to the importing administrator. Imported verified historical matches help meet the model's normal coverage minimums, while learning changes still require later-match validation. See [API.md](API.md) for the endpoints and limits.
+
 ## Start
 
 Install Node.js 22.13 or later. In this folder, run:
