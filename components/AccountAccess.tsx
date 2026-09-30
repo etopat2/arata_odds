@@ -3,6 +3,7 @@ import {useEffect,useState} from 'react';
 import {LockKeyhole,LogIn,ShieldCheck,ArrowRight} from 'lucide-react';
 import Brand from './Brand';
 import SupportContacts from './SupportContacts';
+import LegalLinks from './LegalLinks';
 import {readApiJson,apiErrorMessage} from '@/lib/api-client.mjs';
 
 export type AppUser={id:string;username:string;email:string;firstName:string;lastName:string;phone:string;role:'admin'|'user';active:boolean;mustChangePassword:boolean};
@@ -18,7 +19,7 @@ export default function AccountAccess({children}:{children:(user:AppUser,update:
  if(user&&!user.mustChangePassword)return <>{children(user,setUser,logout)}</>;
  return <main className="account-screen"><div className="account-card"><Brand/><div className="account-emblem">{user?<ShieldCheck size={27}/>:<LockKeyhole size={27}/>}</div><p className="eyebrow">ARATA ODDS · PRIVATE WORKSPACE</p><h1>{user?'Secure your account':'Welcome back'}<span className="mint">.</span></h1><p className="muted">{user?'Change your temporary password before opening the dashboard.':'Your football research, daily insights and saved tickets in one place.'}</p>{notice&&<p className="notice" role="status">{notice}</p>}{error&&<p className="notice error" role="alert">{error}</p>}
  {user?<form onSubmit={change} className="account-form"><label>Current password<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required/></label><label>New password<input type="password" autoComplete="new-password" minLength={12} value={next} onChange={e=>setNext(e.target.value)} required/></label><label>Confirm new password<input type="password" autoComplete="new-password" minLength={12} value={confirm} onChange={e=>setConfirm(e.target.value)} required/></label><p className="small muted">Use at least 12 characters. All existing sessions will be signed out.</p><button className="primary" disabled={busy}>{busy?'Saving…':'Change password'} <ArrowRight size={17}/></button></form>:<form onSubmit={login} className="account-form"><label>Email or login name<input autoComplete="username" value={identity} onChange={e=>setIdentity(e.target.value)} required/></label><label>Password<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required/></label><button className="primary" disabled={busy}><LogIn size={17}/>{busy?'Signing in…':'Sign in'}</button></form>}
- <p className="small muted account-foot">Access is created by an administrator. No betting transactions are available here.</p><SupportContacts compact/></div></main>;
+ <p className="small muted account-foot">Access is created by an administrator. No betting transactions are available here.</p><SupportContacts compact/><LegalLinks compact/></div></main>;
 }
 export function Profile({user,onUpdate,onLogout}:{user:AppUser;onUpdate:(u:AppUser)=>void;onLogout:()=>void}){
  const [username,setUsername]=useState(user.username),[firstName,setFirstName]=useState(user.firstName),[lastName,setLastName]=useState(user.lastName),[phone,setPhone]=useState(user.phone||''),[old,setOld]=useState(''),[password,setPassword]=useState(''),[notice,setNotice]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);

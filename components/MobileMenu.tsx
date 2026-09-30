@@ -6,6 +6,7 @@ import {Activity,ArrowUpRight,ChartNoAxesCombined,LogOut,ShieldCheck,UserRound,X
 import type {LucideIcon} from 'lucide-react';
 import type {AppUser} from './AccountAccess';
 import SupportContacts from './SupportContacts';
+import LegalLinks from './LegalLinks';
 
 type Destination={id:string;label:string;Icon:LucideIcon};
 
@@ -29,7 +30,7 @@ export default function MobileMenu({user,view,onNavigate,onLogout}:{user:AppUser
     <div className="mobile-drawer-top"><button type="button" className="mobile-drawer-profile" onClick={()=>navigate('profile')}><span className="mobile-drawer-avatar">{(user.firstName?.[0]||'A').toUpperCase()}{(user.lastName?.[0]||'').toUpperCase()}</span><span className="mobile-drawer-identity"><small>YOUR ACCOUNT</small><strong>{user.firstName} {user.lastName}</strong><em>{user.role==='admin'?'Administrator':'Member'}</em></span></button><button ref={closeRef} type="button" className="mobile-drawer-close" aria-label="Close navigation menu" onClick={()=>close()}><X size={21}/></button></div>
     <div className="mobile-drawer-scroll"><p className="mobile-drawer-section">YOUR TOOLS</p>{links(account)}
     </div>
-    <div className="mobile-drawer-bottom"><SupportContacts compact/><button type="button" className="mobile-drawer-signout" onClick={()=>{close(false);onLogout();}}><LogOut size={18}/> Sign out</button><p>Football intelligence, made for your edge.</p></div>
+    <div className="mobile-drawer-bottom"><SupportContacts compact/><LegalLinks compact/><button type="button" className="mobile-drawer-signout" onClick={()=>{close(false);onLogout();}}><LogOut size={18}/> Sign out</button><p>Football intelligence, made for your edge.</p></div>
    </aside>
   </div>,document.body)}
  </>;
