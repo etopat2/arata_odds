@@ -2,9 +2,11 @@ import {handle,refreshLive,actor,dailyCycle} from '../lib/service';
 import {startHostedRefresh,refreshStatus} from '../lib/hosted-refresh';
 import {jsonResponse} from '../lib/transport.mjs';
 import {runWithBackground,retainBackground} from '../lib/background.mjs';
+import {applySecurityHeaders} from '../lib/security-headers.mjs';
+import {requireOrigin} from '../lib/auth';
 export default {
  async fetch(request:Request,env:any,ctx:ExecutionContext){
-  return runWithBackground(ctx,async()=>{
+  const result=await runWithBackground(ctx,async()=>{
    const url=new URL(request.url);
    if(url.pathname==='/api/live/stream'){
     const user=await actor(request);if(!user||user.mustChangePassword)return jsonResponse({error:'Sign in to continue.'},{status:401});
@@ -16,7 +18,7 @@ export default {
     if(url.pathname==='/api/sync/status'){const user=await actor(request);if(!user||user.mustChangePassword)return jsonResponse({error:'Sign in to continue.'},{status:401});return jsonResponse(await refreshStatus(url.searchParams.get('range')||''),{headers:{'Cache-Control':'no-store'}});}
     if(request.method==='POST'&&['/api/refresh','/api/web/ingest','/api/predictions/generate'].includes(url.pathname)){
      const user=await actor(request);if(!user||user.mustChangePassword)return jsonResponse({error:'Sign in to continue.'},{status:401});
-     const origin=request.headers.get('origin');if(origin&&origin!==url.origin)return jsonResponse({error:'Request origin is not allowed.'},{status:403});
+     if(!requireOrigin(request))return jsonResponse({error:'Request origin is not allowed.'},{status:403});
      return jsonResponse(await startHostedRefresh(url.searchParams.get('range')||'upcoming'),{status:202,headers:{'Cache-Control':'no-store'}});
     }
     if(url.pathname==='/api/live'||url.pathname==='/api/tickets')await refreshLive().catch(console.error);
@@ -30,9 +32,11 @@ export default {
    const response=await env.ASSETS.fetch(assetRequest);
    const headers=new Headers(response.headers);
    headers.set('Cache-Control',url.pathname.startsWith('/assets/')?'public, max-age=31536000, immutable':url.pathname==='/sw.js'?'no-cache':'private, max-age=0, must-revalidate');
-   headers.set('X-Content-Type-Options','nosniff');
    return new Response(response.body,{status:response.status,headers});
   });
+  const headers=applySecurityHeaders(new Headers(result.headers),request.url,new URL(request.url).pathname.startsWith('/api/'));
+  if(!new URL(request.url).pathname.startsWith('/assets/')&&!new URL(request.url).pathname.startsWith('/brand/')&&!new URL(request.url).pathname.match(/\.(?:png|jpg|jpeg|svg|ico|webp|woff2?)$/))headers.set('Cache-Control','no-store');
+  return new Response(result.body,{status:result.status,headers});
  },
  async scheduled(_event:any,_env:any,ctx:ExecutionContext){return runWithBackground(ctx,async()=>{await startHostedRefresh('today');retainBackground(dailyCycle());});}
 };

@@ -8,6 +8,7 @@ import '../app/mobile-menu.css';
 import '../app/analyzer.css';
 import '../app/support.css';
 import '../app/legal.css';
+import '../app/security.css';
 class AppBoundary extends React.Component<React.PropsWithChildren, {error:boolean}> {
  state={error:false};
  static getDerivedStateFromError(){return {error:true};}

@@ -1,0 +1,1 @@
+try{const t=localStorage.getItem('arata-theme')==='light'?'light':'dark';document.documentElement.dataset.theme=t;document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.style.colorScheme=t;document.querySelector('meta[name=theme-color]').content=t==='light'?'#f5f6f8':'#0a0e1a';}catch{}
