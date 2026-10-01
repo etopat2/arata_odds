@@ -3,7 +3,8 @@ import {db} from './store';
 import {jsonResponse} from './transport.mjs';
 import {securitySettings} from './security-store';
 
-const COOKIE='arata_session',CURRENT_ITERATIONS=600000;
+// The hosted Workers runtime rejects PBKDF2 requests above 100,000 iterations.
+const COOKIE='arata_session',CURRENT_ITERATIONS=100000;
 const config=(key:string)=>String((env as any)?.[key]||(typeof process!=='undefined'?process.env[key]:'')||'');
 const bytes=(size:number)=>crypto.getRandomValues(new Uint8Array(size));
 const hex=(data:Uint8Array)=>[...data].map(n=>n.toString(16).padStart(2,'0')).join('');

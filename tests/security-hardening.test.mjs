@@ -18,6 +18,13 @@ test('security policy rejects unsafe values and response headers protect the app
 
 test('admin policy, session limits and revocation are enforced on the server',async()=>{
  const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync('backend/postgres.sql','utf8'));
+ const cryptoDescriptor=Object.getOwnPropertyDescriptor(globalThis,'crypto'),nativeCrypto=globalThis.crypto;
+ // Match the deployed runtime, where PBKDF2 requests above 100,000 fail.
+ Object.defineProperty(globalThis,'crypto',{configurable:true,value:{
+  getRandomValues:nativeCrypto.getRandomValues.bind(nativeCrypto),
+  randomUUID:nativeCrypto.randomUUID.bind(nativeCrypto),
+  subtle:{digest:nativeCrypto.subtle.digest.bind(nativeCrypto.subtle),importKey:nativeCrypto.subtle.importKey.bind(nativeCrypto.subtle),deriveBits(algorithm,...args){assert.ok(algorithm.iterations<=100000,'PBKDF2 exceeds the hosted runtime limit');return nativeCrypto.subtle.deriveBits(algorithm,...args);}}
+ }});
  globalThis.__ARATA_DB={prepare(sql){return {sql,params:[],bind(...params){this.params=params;return this;},async all(){return {results:sqlite.prepare(sql).all(...this.params)};},async first(){return sqlite.prepare(sql).get(...this.params)||null;},async run(){sqlite.prepare(sql).run(...this.params);return {success:true};}};},async batch(commands){sqlite.exec('BEGIN');try{for(const c of commands)await c.run();sqlite.exec('COMMIT');return [];}catch(e){sqlite.exec('ROLLBACK');throw e;}}};
  try{
   const bundle=await build({entryPoints:['lib/service.ts'],bundle:true,platform:'node',format:'esm',write:false,plugins:[{name:'test-env',setup(b){b.onResolve({filter:/^cloudflare:workers$/},()=>({path:'env',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:"export const env={DB:globalThis.__ARATA_DB,ARATA_ADMIN_INITIAL_PASSWORD:'TestAdmin@123',ARATA_ADMIN_EMAIL:'admin@example.test'};",loader:'js'}));}}]});
@@ -40,5 +47,5 @@ test('admin policy, session limits and revocation are enforced on the server',as
   assert.equal((await call('/api/auth/me','GET',undefined,cookie)).status,401);
   const newCookie=replacement.headers.get('set-cookie')?.split(';')[0];assert.equal((await call('/api/auth/me','GET',undefined,newCookie)).status,200);
   const create=await call('/api/admin/users','POST',{firstName:'Test',lastName:'User',email:'user@example.test',phone:'+256700000001'},newCookie);assert.equal(create.status,201);const created=await create.json();assert.notEqual(created.temporaryPassword,'arataodds123');assert.match(created.temporaryPassword,/^[a-f0-9]{24}$/);
- }finally{delete globalThis.__ARATA_DB;sqlite.close();}
+ }finally{delete globalThis.__ARATA_DB;Object.defineProperty(globalThis,'crypto',cryptoDescriptor);sqlite.close();}
 });
