@@ -8,7 +8,7 @@ For account or app support, email [etopat@gmail.com](mailto:etopat@gmail.com) or
 
 The **Admin** page edits public support contacts, searches user accounts and opens Add user in a dedicated modal. Its Data portability panel exports a JSON archive of fixtures, verified history, forecasts, outcomes, price snapshots, ticket records, support contacts and learning/research context. Import merges the archive into another local setup without copying passwords or sessions. Existing records remain intact; ticket ownership maps by email or falls back to the importing administrator. Imported verified historical matches help meet the model's normal coverage minimums, while learning changes still require later-match validation. See [API.md](API.md) for the endpoints and limits.
 
-The public **Legal & Safety** page is available at `/legal` before sign-in and from the dashboard footer and mobile menu. It covers terms of use, a prediction disclaimer, privacy, responsible use and data provenance. The Ugandan regulator states that gambling participants must be at least 25; the app's prior “18+” label has been corrected. These notices describe the current product and should be reviewed when the service or applicable rules change.
+**Legal & Safety** opens inside the signed-in workspace from the navigation, footer, or mobile menu; its section links stay in the same tab. The `/legal` route also remains available before sign-in. It covers terms of use, a prediction disclaimer, privacy, responsible use and data provenance. The Ugandan regulator states that gambling participants must be at least 25; the app's prior “18+” label has been corrected. These notices describe the current product and should be reviewed when the service or applicable rules change.
 
 ## Start
 

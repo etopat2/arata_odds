@@ -8,14 +8,15 @@ import SupportContacts from './SupportContacts';
 const updated='30 September 2026';
 const external=(href:string,label:string)=><a href={href} target="_blank" rel="noopener noreferrer">{label}<ArrowUpRight size={13} aria-hidden="true"/></a>;
 
-export default function LegalCenter(){
+export default function LegalCenter({embedded=false,focusSection,focusRequest=0}:{embedded?:boolean;focusSection?:string;focusRequest?:number}={}){
  useEffect(()=>{
-  const scrollToSection=()=>{const id=window.location.hash.slice(1);if(id)document.getElementById(id)?.scrollIntoView({block:'start'});};
+  const scrollToSection=()=>{const id=embedded?focusSection:window.location.hash.slice(1);if(id)document.getElementById(id)?.scrollIntoView({block:'start'});};
   const frame=window.requestAnimationFrame(scrollToSection);
-  window.addEventListener('hashchange',scrollToSection);
-  return ()=>{window.cancelAnimationFrame(frame);window.removeEventListener('hashchange',scrollToSection);};
- },[]);
- return <main className="legal-page" id="top"><header className="legal-header"><a href="/" className="legal-brand-link" aria-label="Return to Arata Odds"><Brand compact/></a><div className="legal-header-actions"><ThemeToggle/><a href="/" className="legal-home-link"><ArrowLeft size={16}/>Back to app</a></div></header>
+  if(!embedded)window.addEventListener('hashchange',scrollToSection);
+  return ()=>{window.cancelAnimationFrame(frame);if(!embedded)window.removeEventListener('hashchange',scrollToSection);};
+ },[embedded,focusSection,focusRequest]);
+ const Container=embedded?'div':'main';
+ return <Container className={'legal-page'+(embedded?' is-embedded':'')} id="top">{!embedded&&<header className="legal-header"><a href="/" className="legal-brand-link" aria-label="Return to Arata Odds"><Brand compact/></a><div className="legal-header-actions"><ThemeToggle/><a href="/" className="legal-home-link"><ArrowLeft size={16}/>Back to app</a></div></header>}
   <div className="legal-shell"><section className="legal-hero"><div className="legal-hero-mark"><Scale size={30}/></div><p className="eyebrow">ARATA ODDS · INFORMATION CENTRE</p><h1>Clear terms.<br/><span className="mint">Clear expectations.</span></h1><p>Understand how Arata Odds works, what its forecasts can and cannot tell you, and how your account information is handled.</p><div className="legal-hero-meta"><span>Updated {updated}</span><span>All times shown in East Africa Time</span><span>Football research · No wager placement</span></div></section>
    <div className="legal-layout"><aside className="legal-toc"><span className="legal-toc-label">ON THIS PAGE</span><nav aria-label="On this page"><a href="#overview"><BookOpen size={16}/>At a glance</a><a href="#terms"><Scale size={16}/>Terms of use</a><a href="#disclaimer"><ShieldAlert size={16}/>Prediction disclaimer</a><a href="#privacy"><LockKeyhole size={16}/>Privacy notice</a><a href="#responsible-use"><HeartHandshake size={16}/>Responsible use</a><a href="#sources"><Database size={16}/>Data & sources</a></nav><div className="legal-toc-note">A prediction is a probability estimate, not a promise of a result.</div></aside>
     <div className="legal-content"><section id="overview" className="legal-summary"><span className="eyebrow">START HERE</span><h2>What this service does</h2><p>Arata Odds is an invitation-only football research tool. It gathers available fixtures and public sports data, estimates match and market probabilities, compares those estimates with captured odds, creates hypothetical ticket combinations, and records predictions and outcomes. It does not accept money, place bets, hold bookmaker accounts, or pay winnings.</p><div className="legal-summary-grid"><div><b>Research, not execution</b><span>Saved tickets are analysis records only.</span></div><div><b>Estimates, not certainty</b><span>Every pick can lose, including a high-confidence pick.</span></div><div><b>Your decision</b><span>Check current facts, prices and local rules yourself.</span></div></div></section>
@@ -26,5 +27,5 @@ export default function LegalCenter(){
      <section id="sources" className="legal-section"><div className="legal-section-title"><span className="legal-section-icon"><Database size={21}/></span><div><p>05 / PROVENANCE</p><h2>Data, sources & contact</h2></div></div><div className="legal-prose"><p>Arata Odds combines its own historical-results model with available public football feeds and external probability estimates. Price snapshots identify their bookmaker, market and capture time when available; a missing quote is not a recommendation. Fixture times and schedules are displayed in Africa/Kampala time (UTC+3). Source coverage varies by league, bookmaker and date, and the app does not imply sponsorship by any data source.</p><p>Bet Better probabilities, Football-Data.co.uk results, OpenLigaDB fixtures and other public match sources have their own terms and attribution requirements. The app’s source panel and technical documentation describe coverage and limitations in more detail. For a correction, privacy request, account issue or question about these notices, contact the app owner:</p></div><div className="legal-contact"><SupportContacts/></div></section>
      <div className="legal-end"><span>Arata Odds · Football research with clear limits.</span><a href="#top">Back to top ↑</a></div>
     </div></div></div>
- </main>;
+ </Container>;
 }

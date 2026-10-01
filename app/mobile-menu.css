@@ -1,7 +1,7 @@
 .mobile-menu-trigger,.mobile-menu-layer{display:none}
 
 @media(max-width:700px){
- .header-actions .model-lab-button,.rail nav button[data-destination="profile"],.rail nav button[data-destination="admin"],.rail nav button[data-destination="history"]{display:none}
+ .header-actions .model-lab-button,.rail nav button[data-destination="profile"],.rail nav button[data-destination="admin"],.rail nav button[data-destination="history"],.rail nav button[data-destination="legal"]{display:none}
  .mobile-menu-trigger{display:grid;place-items:center;position:relative;isolation:isolate;width:40px;height:40px;margin-left:2px;border:1px solid color-mix(in srgb,var(--primary) 27%,var(--border));border-radius:13px;background:linear-gradient(145deg,color-mix(in srgb,var(--primary) 13%,var(--card)),var(--card));color:var(--primary);box-shadow:0 4px 14px #0002,inset 0 1px #ffffff12;transition:transform .26s ease,border-color .26s ease,box-shadow .26s ease,background .26s ease}
  .mobile-menu-trigger::after{content:"";position:absolute;inset:-4px;border-radius:16px;border:1px solid var(--primary);opacity:0;transform:scale(.85);transition:opacity .26s ease,transform .26s ease;pointer-events:none}
  .mobile-menu-trigger:hover,.mobile-menu-trigger:focus-visible,.mobile-menu-trigger.is-open{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 12%,transparent),0 8px 24px color-mix(in srgb,var(--primary) 13%,transparent)}
