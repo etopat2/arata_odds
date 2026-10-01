@@ -5,6 +5,7 @@ import "./mobile-menu.css";
 import "./analyzer.css";
 import "./support.css";
 import "./legal.css";
+import "./security.css";
 
 export const metadata: Metadata = {
   title: "Arata Odds — Football research",
