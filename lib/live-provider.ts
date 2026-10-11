@@ -9,10 +9,10 @@ import {PAWA_MARKET_TYPES,withPawaMarkets} from './market-outcomes.mjs';
 import {planMatchChecks,rotatingBatch} from './live-poll-plan.mjs';
 import {publishedFinals} from './published-results';
 const liveBase='https://prod-cdn-mev-api.lsmedia1.com/api/v2';
-let detailCursor=0,recoveryCursor=0,publishedAt=0;
+let detailCursor=0,recoveryCursor=0,dayCursor=0,publishedAt=0;
 const detailBase='https://prod-cdn-public-api.lsmedia1.com/v1/api/app';
 export async function liveIngest(existing:any[]=[],tickets:any[]=[],publish:(fixtures:any[],status:any)=>Promise<void>=async()=>{}){
- if(isHostedRequest()){const cursor=(await cachedRead('live-detail-cursors:v1'))?.data;detailCursor=cursor?.detail||0;recoveryCursor=cursor?.recovery||0;}const detailLimit=isHostedRequest()?12:24,recoveryLimit=isHostedRequest()?12:24;const memo=requestCache(),fixtures:any[]=[],statuses:any[]=[],today=dayKey(),midnight=new Date(today+'T00:00:00+03:00'),recentDays=Array.from({length:4},(_,i)=>new Date(midnight.getTime()-i*86400000).toISOString().slice(0,10)),days=[...new Set([...recentDays,new Date(midnight.getTime()+86400000).toISOString().slice(0,10),...trackedFixtureDays(existing,tickets)])];
+ if(isHostedRequest()){const cursor=(await cachedRead('live-detail-cursors:v1'))?.data;detailCursor=cursor?.detail||0;recoveryCursor=cursor?.recovery||0;dayCursor=cursor?.day||0;}const detailLimit=isHostedRequest()?12:24,recoveryLimit=isHostedRequest()?12:24;const memo=requestCache(),fixtures:any[]=[],statuses:any[]=[],today=dayKey(),midnight=new Date(today+'T00:00:00+03:00'),recentDays=Array.from({length:4},(_,i)=>new Date(midnight.getTime()-i*86400000).toISOString().slice(0,10)),trackedDays=trackedFixtureDays(existing,tickets).filter(d=>!recentDays.includes(d)),olderDays=rotatingBatch(trackedDays,dayCursor,isHostedRequest()?4:12),days=[...new Set([...recentDays,new Date(midnight.getTime()+86400000).toISOString().slice(0,10),...olderDays])];dayCursor+=olderDays.length;
  const trackedIds=activeTicketIds(existing,tickets),tracked=existing.filter(f=>trackedIds.has(f.id));
  async function batch(fs:any[],status:any){fixtures.push(...fs);statuses.push(status);await publish(fs,status);}
  const tasks=days.map(async d=>{const url=liveBase+'/date/soccer/'+d.replace(/-/g,'')+'/0?locale=en',older=Date.parse(d+'T00:00:00Z')<Date.now()-86400000;try{const r=await fetchCached(url,older?300000:10000,memo,{volatile:true,headers:{Referer:'https://www.livescore.com/'},timeoutMs:1500,retries:1,maxStaleMs:older?900000:15000});await batch(parseLiveScore(r.data,r.captured,url).map((f:any)=>({...f,liveStale:r.stale})),{name:'LiveScore results '+d,status:r.stale?'cached':'connected',captured:r.captured});}catch(e){statuses.push({name:'LiveScore results '+d,status:'unavailable',message:(e as Error).message});}});
@@ -32,6 +32,6 @@ export async function liveIngest(existing:any[]=[],tickets:any[]=[],publish:(fix
   if(kind==='result'&&!supplied)await batch([{...f,status:'awaiting-result',liveClock:'Result unverified',liveStale:true,resultCheckedAt:checked}],{name:'Result confirmation',status:'partial',message:'Final score not published in the available sources.'});
   if(kind==='final-details'&&!supplied)await batch([{...f,detailsCheckedAt:checked,detailsCoverage:'unavailable'}],{name:'Saved match events',status:'partial',message:'Scorer coverage is unavailable for some completed matches.'});
  }}));
- await Promise.allSettled(tasks);if(isHostedRequest())await cachedWrite('live-detail-cursors:v1',Number.MAX_SAFE_INTEGER,{data:{detail:detailCursor,recovery:recoveryCursor}});return {fixtures,statuses};
+ await Promise.allSettled(tasks);if(isHostedRequest())await cachedWrite('live-detail-cursors:v1',Number.MAX_SAFE_INTEGER,{data:{detail:detailCursor,recovery:recoveryCursor,day:dayCursor}});return {fixtures,statuses};
 }
 function pawaLive(e:any,captured:string,url:string,stale:boolean){return e.additionalInfo?.live?parsePawaTracked(e,captured,url,stale):null;}

@@ -1,4 +1,4 @@
-import {handle,refreshLive,actor,dailyCycle} from '../lib/service';
+import {handle,refreshLive,actor} from '../lib/service';
 import {startHostedRefresh,refreshStatus} from '../lib/hosted-refresh';
 import {jsonResponse} from '../lib/transport.mjs';
 import {runWithBackground,retainBackground} from '../lib/background.mjs';
@@ -38,5 +38,5 @@ export default {
   if(!new URL(request.url).pathname.startsWith('/assets/')&&!new URL(request.url).pathname.startsWith('/brand/')&&!new URL(request.url).pathname.match(/\.(?:png|jpg|jpeg|svg|ico|webp|woff2?)$/))headers.set('Cache-Control','no-store');
   return new Response(result.body,{status:result.status,headers});
  },
- async scheduled(_event:any,_env:any,ctx:ExecutionContext){return runWithBackground(ctx,async()=>{await startHostedRefresh('today');retainBackground(dailyCycle());});}
+ async scheduled(_event:any,_env:any,ctx:ExecutionContext){return runWithBackground(ctx,async()=>{await startHostedRefresh('week');retainBackground(refreshLive().catch(console.error));});}
 };
