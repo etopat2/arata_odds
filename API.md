@@ -35,8 +35,8 @@ Date windows and display schedules use Africa/Kampala. Payloads retain UTC ISO t
 | GET | /api/state?range=week&history=0 | Fixtures, current picks, tickets, metrics, suggestions and higher-win-chance picks. history=0 omits the full log; otherwise the first history page is included; /api/history pages through the full log. |
 | GET | /api/health | Database readiness, application identity and Kampala timezone. |
 | GET | /api/fixtures?range=today | Normalized fixtures, probabilities, 1X2 prices and multi-market quotes. |
-| GET | /api/fixtures/h2h?id=FIXTURE_ID | Covered previous meetings and recent form. |
-| GET | /api/match/analyze?id=FIXTURE_ID | Selective independent match analysis: 1X2 chances, indicative FT score grid, evidence and three price-aware risk bands. `refresh=1` requests a fresh model pass. |
+| GET | /api/fixtures/h2h?id=FIXTURE_ID | Rechecks published Football-Data results and recent ESPN verified FT scoreboards before returning previous meetings and recent form. |
+| GET | /api/match/analyze?id=FIXTURE_ID | Independent match analysis: 1X2 chances, indicative FT score grid, evidence and three price-aware risk bands. Selecting a match in Match Lab sends `refresh=1`, which rechecks current online results, news and available official/squad context before forecasting. |
 | GET | /api/odds/snapshots?fixtureId=FIXTURE_ID | Persisted price snapshots; optional fixture filter. |
 | POST | /api/odds | Save owner-entered 1X2 prices. |
 | POST | /api/odds/market | Save an owner-entered quote for an exact supported model market/line. |
@@ -124,7 +124,7 @@ Arata's data refresh is part of the existing `POST /api/refresh`. Forecast compu
 
 - `GET /api/models/jobs`: six-league research progress, sample counts, source failures and validation status. Background jobs start with normal fixture refresh and resume from persistent source caches.
 - `GET /api/models/archive?league=mls`: licensed StatsBomb archive season, match xG totals and regulation shot events with player/source provenance. Supported IDs: mls, epl, bundesliga, la-liga, serie-a, ligue-1. Archival data is not today's lineup or schedule.
-- `GET /api/models/research?id=...`: `arata.evidence.advanced` now includes published squads, provider-confirmed XI status, official absence reports/date windows, baseline/adjusted goal rates, player/rest validation and source-dependent coverage.
+- `GET /api/models/research?id=...`: refreshes an outdated Arata forecast before returning it. `refresh=1` forces the selected match's current public feeds to be checked. `arata.evidence.advanced` includes published squads, provider-confirmed XI status, official absence reports/date windows, baseline/adjusted goal rates, player/rest validation and source-dependent coverage.
 - `GET /api/history?q=TEAM&outcome=all&page=0&pageSize=20`: searchable **complete** immutable log, server pagination. Returns `{records,total,page,pageSize,pages}`. Every search word must match the two team names; literal `%`/`_` are escaped. Outcomes: all/won/lost/pending; page size 1–100. This replaces the old unbounded array response. Dashboard summaries still count all saved rows.
 
 No arbitrary remote URL or prediction-history replacement is accepted. Match/roster sources are fixed by the adapter. Confirmed OUT entries may enable learned corrections; doubtful reports and news alone cannot. See MODEL.md for all gates and the limits of free current xG/injury coverage.

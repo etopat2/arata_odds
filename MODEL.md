@@ -6,7 +6,8 @@ Arata owns the forecasting calculation and stores its forecasts separately from 
 
 ```mermaid
 flowchart LR
-  H[Free historical result CSVs] --> C[Persistent historical cache]
+  H[Football-Data historical CSVs] --> C[Persistent historical cache]
+  J[ESPN confirmed recent FT scoreboards] --> C
   N[Public ESPN news headlines] --> E[Availability context]
   C --> F[Team goals, venue splits, form, H2H]
   F --> A[Arata goal model]
@@ -25,9 +26,9 @@ flowchart LR
   X --> T
 ```
 
-Football-Data.co.uk provides three seasons of Premier League, Bundesliga, La Liga, Serie A and Ligue 1 results, plus its public USA/MLS archive. Only the preceding 730 days are considered. CSV result dates become usable after the entire UTC day, preventing same-day training leakage. All presentation and fixture-day filters remain in Africa/Kampala. The CSVs train the model; they do not overwrite official fixture scores or settle tickets.
+Football-Data.co.uk provides three seasons of Premier League, Bundesliga, La Liga, Serie A and Ligue 1 results, plus its public USA/MLS archive. Recent ESPN scoreboards supply confirmed regulation FT results for all six leagues when CSV publication lags. Only the preceding 730 days are considered. CSV result dates become usable after the entire UTC day; ESPN results require an explicit FT state and a conservative three-hour post-kickoff window. This prevents premature or future-result training leakage. All presentation and fixture-day filters remain in Africa/Kampala. The result-recovery worker can use either publisher to settle a saved leg; if both published scores disagree, it withholds settlement.
 
-Sources are downloaded sequentially within each league, with at most three requests per league. Request deduplication, shared in-flight requests, memory and persistent database caches are reused. Current-season histories refresh every six hours; completed-season files every seven days. A stale response is labelled and its forecasts are excluded from generated tickets. News refreshes every 30 minutes. Forecasts are recalculated at most every 15 minutes unless the quoted market set changes. Fixture and price refreshes continue independently every minute.
+Request deduplication, shared in-flight requests, memory and persistent database caches bound source traffic. Current-season CSVs are rechecked after ten minutes, current-month FT scoreboards after two minutes, older seasons after seven days, and linked news after five minutes. Match Lab selection and its Refresh button explicitly recheck current online feeds before calculating; the source cache remains a fallback if a publisher is unavailable. A deterministic revision of verified results invalidates cached forecasts and player-impact training when a score or recent match changes. Normal forecasts are checked after two minutes (one minute near kickoff). Missing current-source coverage is labelled stale and excluded from actionable match advice. A source's own publication delay still limits freshness.
 
 ## Calculation
 
@@ -55,7 +56,7 @@ The event-xG layer estimates opponent-adjusted residual rates from preceding mea
 
 FotMob automatic collection is disabled because the publisher explicitly prohibits systematic automated use. No signed/private routes, challenge bypasses or API keys are used. Previously inspected source data is not used by the active v4 research context.
 
-Research runs in two background league jobs, each with two bounded requests at a time, so fixture/live handling continues. Structured fields, not raw HTML/event payloads, are cached through in-flight, memory and persistent storage layers. Historical summaries cache for 30 days; licensed event records 90 days; rosters/schedules one hour; official reports 30 minutes. A six-hour research context avoids retraining at each price update, and progress/errors are visible through `/api/models/jobs`. Jobs restart from persistent source caches. Forecasts cache for 15 minutes, or one minute near kickoff, and are invalidated when research/availability/quote-market coverage changes.
+Research runs in two background league jobs, each with two bounded requests at a time, so fixture/live handling continues. Structured fields, not raw HTML/event payloads, are cached through in-flight, memory and persistent storage layers. Historical summaries cache for 30 days and licensed event records for 90 days; current rosters refresh after 30 minutes, current-season schedules after ten minutes and official reports after ten minutes. The research context is rechecked after 30 minutes or immediately when its verified-result revision changes, and progress/errors are visible through `/api/models/jobs`. Match Lab's explicit refresh checks linked current rosters and official reports online for the selected teams. Advanced player effects trained on an older result revision are withheld until rebuilt. Forecasts are rechecked after two minutes, or one minute near kickoff, and are invalidated when research, availability, result history or quoted-market coverage changes.
 
 Arata and the blend remain provisional, medium confidence. Strict Cautious qualification excludes them; clearly labelled review drafts remain available. validation of a component does not upgrade the entire predictor to high confidence. Prospective Model Lab comparison remains the test of prediction precision.
 

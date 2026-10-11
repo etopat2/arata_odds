@@ -8,7 +8,7 @@ import {historicalKey,validHistoricalResult} from '../lib/historical-archive.mjs
 import {normalizeSupportContacts,whatsappUrl} from '../lib/support-settings.mjs';
 
 const now=Date.now(),kickoff=new Date(now+3*3600000).toISOString(),captured=new Date(now).toISOString();
-const fixture={id:'match-1',home:'Arsenal',away:'Chelsea',league:'Premier League',leagueId:'epl',kickoff,status:'scheduled',quotes:[{market:'DOUBLE_CHANCE',selection:'1X',line:null,period:'FT',odds:1.7,bookmaker:'Example',captured}],arataModel:{available:true,created:captured,expectedGoals:{home:2.2,away:.7},probabilities:{home:.7,draw:.2,away:.1},markets:[],evidence:{stale:false,leagueMatches:350,homeMatches:36,awayMatches:36,homeForm:[],awayForm:[],h2h:[],sources:['Football-Data.co.uk'],learning:{status:'validated-active'}}}};
+const fixture={id:'match-1',home:'Arsenal',away:'Chelsea',league:'Premier League',leagueId:'epl',kickoff,status:'scheduled',quotes:[{market:'DOUBLE_CHANCE',selection:'1X',line:null,period:'FT',odds:1.7,bookmaker:'Example',captured}],arataModel:{available:true,created:captured,expectedGoals:{home:2.2,away:.7},probabilities:{home:.7,draw:.2,away:.1},markets:[],evidence:{stale:false,historyRevision:'test-revision',leagueMatches:350,homeMatches:36,awayMatches:36,homeForm:[],awayForm:[],h2h:[],sources:['Football-Data.co.uk'],learning:{status:'validated-active'}}}};
 
 test('Match Lab distinguishes likely scores, risk bands and a genuinely fresh value quote',()=>{
  const report=analyzeFixture(fixture,now);assert.equal(report.scorelines.length,5);assert.ok(report.scorelines[0].probability>report.scorelines[1].probability);assert.equal(report.tiers.length,3);assert.equal(report.decision,'consider');assert.ok(report.tiers.some(t=>t.actionable&&t.option.odds===1.7));
