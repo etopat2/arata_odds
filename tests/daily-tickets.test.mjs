@@ -8,7 +8,12 @@ test('daily guidance saves once per user and day from qualified current-price pi
  const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync('backend/postgres.sql','utf8'));
  globalThis.__ARATA_DAILY_DB={prepare(sql){return {params:[],bind(...p){this.params=p;return this;},async first(){return sqlite.prepare(sql).get(...this.params)||null;},async all(){return {results:sqlite.prepare(sql).all(...this.params)};},async run(){sqlite.prepare(sql).run(...this.params);return {success:true};}};}};
  const bundle=await build({entryPoints:['lib/daily-tickets.ts'],bundle:true,platform:'node',format:'esm',write:false,plugins:[{name:'test-env',setup(b){b.onResolve({filter:/^cloudflare:workers$/},()=>({path:'env',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export const env={DB:globalThis.__ARATA_DAILY_DB};',loader:'js'}));}}]});
- const {ensureDailyTickets,ensureDailyForAll,dailyStatus}=await import('data:text/javascript;base64,'+Buffer.from(bundle.outputFiles[0].text).toString('base64'));
+ const {ensureDailyTickets,ensureDailyForAll,dailyStatus,dailyRefreshDue}=await import('data:text/javascript;base64,'+Buffer.from(bundle.outputFiles[0].text).toString('base64'));
+ assert.equal(dailyRefreshDue({status:'waiting'},{inProgress:false,nextStage:'forecast',updated:new Date().toISOString()}),true);
+ assert.equal(dailyRefreshDue({status:'waiting'},{inProgress:false,nextStage:'ingest',updated:new Date(Date.now()-11*60000).toISOString()}),true);
+ assert.equal(dailyRefreshDue({status:'waiting'},{inProgress:false,nextStage:'ingest',updated:new Date().toISOString()}),false);
+ assert.equal(dailyRefreshDue({status:'complete'},{inProgress:false,nextStage:'forecast'}),false);
+ assert.equal(dailyRefreshDue({status:'waiting'},{inProgress:true,nextStage:'forecast'}),false);
  const now=new Date().toISOString(),kickoff=new Date(Date.now()+3*3600000).toISOString();
  const picks=[0,1].map(i=>({id:'p'+i,fixtureId:'f'+i,home:'Home '+i,away:'Away '+i,kickoff,league:'Test',leagueId:'test',market:'BTTS',selection:'yes',line:null,period:'FT',outcome:'pending',probability:.82,odds:1.6,edge:.195,confidence:'high',predictor:'arata',bookmaker:'Test',modelCaptured:now,oddsCaptured:now,oddsSource:'Public bookmaker feed'}));
  const quotes=picks.map(p=>({fixtureId:p.fixtureId,market:p.market,selection:p.selection,line:p.line,period:p.period,bookmaker:p.bookmaker,odds:p.odds,captured:now}));const saved=[];

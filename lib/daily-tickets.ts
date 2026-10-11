@@ -4,6 +4,7 @@ import {buildTicketPlan} from './league-tickets.mjs';
 const day=()=>new Date(Date.now()+3*3600000).toISOString().slice(0,10);
 const key=(userId:string)=>`daily-ticket:v1:${day()}:${userId}`;
 export async function dailyStatus(userId:string){return (await cachedRead(key(userId)))?.data||{status:'waiting',day:day(),message:'Daily analysis will run when current forecasts and prices are available.'};}
+export function dailyRefreshDue(daily:any,sync:any,now=Date.now()){if(daily?.status!=='waiting'||sync?.inProgress)return false;if(sync?.nextStage==='forecast')return true;const updated=Date.parse(sync?.updated||'');return !Number.isFinite(updated)||now-updated>600000;}
 export async function ensureDailyTickets(userId:string,loadState:(id:string)=>Promise<any>,save:(body:any,id:string,generated:boolean)=>Promise<any>,afterForecast=false){
  const recordKey=key(userId),now=Date.now(),owner=crypto.randomUUID(),today=day();
  await db().prepare("INSERT INTO api_cache(key,expires,payload) VALUES(?,?,?) ON CONFLICT(key) DO UPDATE SET expires=excluded.expires,payload=excluded.payload WHERE api_cache.expires<? OR (?=1 AND json_extract(api_cache.payload,'$.data.status')='waiting')").bind(recordKey,now+300000,JSON.stringify({data:{status:'running',day:today,owner,updated:new Date().toISOString()}}),now,afterForecast?1:0).run();
