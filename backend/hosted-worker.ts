@@ -1,6 +1,7 @@
 import {handle,refreshLive,actor} from '../lib/service';
 import {startHostedRefresh,refreshStatus} from '../lib/hosted-refresh';
 import {dailyRefreshDue,dailyStatus} from '../lib/daily-tickets';
+import {schedulerAuthorized} from '../lib/scheduler-auth.mjs';
 import {jsonResponse} from '../lib/transport.mjs';
 import {runWithBackground,retainBackground} from '../lib/background.mjs';
 import {applySecurityHeaders} from '../lib/security-headers.mjs';
@@ -16,7 +17,12 @@ export default {
     return new Response(null,{status:204,headers:{'Cache-Control':'no-store'}});
    }
    if(url.pathname.startsWith('/api/')){try{
-    if(url.pathname==='/api/sync/status'){const user=await actor(request);if(!user||user.mustChangePassword)return jsonResponse({error:'Sign in to continue.'},{status:401});return jsonResponse(await refreshStatus(url.searchParams.get('range')||''),{headers:{'Cache-Control':'no-store'}});}
+   if(url.pathname==='/api/sync/status'){const user=await actor(request);if(!user||user.mustChangePassword)return jsonResponse({error:'Sign in to continue.'},{status:401});return jsonResponse(await refreshStatus(url.searchParams.get('range')||''),{headers:{'Cache-Control':'no-store'}});}
+    if(url.pathname==='/api/internal/daily'&&request.method==='POST'){
+     if(!await schedulerAuthorized(request))return jsonResponse({error:'Forbidden.'},{status:403,headers:{'Cache-Control':'no-store'}});
+     const result=await startHostedRefresh('week');retainBackground(refreshLive().catch(console.error));
+     return jsonResponse(result,{status:202,headers:{'Cache-Control':'no-store'}});
+    }
     if(url.pathname==='/api/tickets/daily/status'){const user=await actor(request);if(user&&!user.mustChangePassword){const [daily,sync]=await Promise.all([dailyStatus(user.id),refreshStatus('week')]);if(dailyRefreshDue(daily,sync))await startHostedRefresh('week');}}
     if(request.method==='POST'&&['/api/refresh','/api/web/ingest','/api/predictions/generate'].includes(url.pathname)){
      const user=await actor(request);if(!user||user.mustChangePassword)return jsonResponse({error:'Sign in to continue.'},{status:401});
